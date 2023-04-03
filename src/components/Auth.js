@@ -36,7 +36,7 @@ export const Auth = (props) => {
     <form className="auth" onSubmit={handleSubmit(signIn)}>
       <input maxLength="20" placeholder="type name..." {...register("name")} />
       <p>{errors.name?.message}</p>
-      <button type="submit"> Play</button>
+      <button type="submit"> play</button>
     </form>
   );
 }
