@@ -15,13 +15,15 @@ export const Chat = (props) => {
         const queryMessages = query(messagesRef, where("room", "==", props.room), orderBy("createdAt"));
         const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
           let messagesArray = [];
-          snapshot.forEach((doc) => {messagesArray.push({...doc.data(), id: doc.id})})
+          snapshot.forEach((doc) => {
+            messagesArray.push({ ...doc.data(), id: doc.id });
+          });
           setMessages(messagesArray);
         });
         return () => {
           unsubscribe();
-        }
-      }, [])
+        };
+      }, [messagesRef, props.room]);
 
     const handleSubmit = async  (e) => {
         e.preventDefault();

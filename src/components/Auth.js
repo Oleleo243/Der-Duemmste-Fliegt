@@ -1,9 +1,7 @@
-import { auth, provider } from '../firebase-config.js';
+import { auth, } from '../firebase-config.js';
 import { signInAnonymously, updateProfile } from "firebase/auth";
 import '../styles/Auth.css';
 import * as yup from "yup";
-import { string, object, required } from "yup";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup'
 
