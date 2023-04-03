@@ -1,25 +1,44 @@
-import logo from './logo.svg';
+import { useState, useRef } from "react";
 import './App.css';
+import {Auth} from "./components/Auth";
+import Cookies from 'universal-cookie';
+import {Chat} from "./components/Chat";
+
+
+const cookies = new Cookies();
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [isAuth, setIsAuth] = useState(false);
+  const [room, setRoom] = useState(null);
+  const roomInputRef = useRef(null);
+  
+  if(!isAuth){
+    return (
+      <div>
+        <Auth setIsAuth = {setIsAuth}/>
+      </div>
+    );
+  }
+
+  if(room === null){
+    return(
+      <div className="room">
+        <label>Enter Room Name</label>
+        <input placeholder="Na los . . ." ref={roomInputRef}/>
+        <div className="button-group">
+          <button onClick={() => setRoom(roomInputRef.current.value)}>Create Room</button>
+          <button onClick={() => setRoom(roomInputRef.current.value)}>Join Room</button>
+        </div>
+      </div>
+    );
+  }
+
+  if(room !== null){
+    return(
+      <div><Chat room={room}/></div>
+    );
+  }
 }
 
 export default App;
