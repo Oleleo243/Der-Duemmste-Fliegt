@@ -29,9 +29,10 @@ export const Auth = (props) => {
   }
 
   return (
-    //<h1 className="auth-heading">DER DÜMMSTE FLIEGT! 😜🤪</h1> 
+
 
     <form className="auth" onSubmit={handleSubmit(signIn)}>
+      <h1 className="auth-heading">DER DÜMMSTE FLIEGT! 😜🤪</h1> 
       <input maxLength="20" placeholder="type name..." {...register("name")} />
       <p>{errors.name?.message}</p>
       <button type="submit"> play</button>
