@@ -21,7 +21,6 @@ export const Auth = (props) => {
       await updateProfile(auth.currentUser, {
         displayName: data.name
       })
-      console.log(result);
       props.setIsAuth(true);
     } catch (err) {
       console.error(err);
