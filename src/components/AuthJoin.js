@@ -5,11 +5,9 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigate } from "react-router-dom";
-import '../styles/Home.css';
 import {Auth} from "./Auth";
 import {Lobby} from "./Lobby";
 import Cookies from 'universal-cookie';
-import {Chat} from "./Chat";
 import { getDatabase, ref, set, push, hasChild, exists,get, update  } from "firebase/database";
 import {getAuth,onAuthStateChanged, GoogleAuthProvider} from "firebase/auth"
 import {db, auth, uid,} from '../firebase-config.js';
@@ -44,7 +42,7 @@ export const AuthJoin = (props) => {
 
     // Überprüfe, ob die maximale Anzahl von Spielern erreicht ist
     const roomData = roomSnapshot.val();
-    if (roomData.playerNumber >= roomData.maxPlayerNumber) {
+    if (roomData.status.playerNumber >= roomData.settings.maxPlayerNumber) {
       alert("Max player limit reached");
       throw new Error("Max player limit reached");
     }
@@ -56,12 +54,13 @@ export const AuthJoin = (props) => {
     });
 
     // Aktualisiere die playerNumber im Raum
-    const newPlayerNumber = roomData.playerNumber + 1;
-    await update(ref(db, `rooms/${props.roomID}`), {
+    const newPlayerNumber = roomData.status.playerNumber + 1;
+    await update(ref(db, `rooms/${props.roomID}/settings`), {
     playerNumber: newPlayerNumber,
     });
     // sage der ui das der Prozess fertig ist
     setShouldJoin(false);
+    console.log(shouldJoin);
   }
 
   const signIn = async (data) => {

@@ -1,70 +1,68 @@
-body {
-  padding: 0;
-  margin: 0;
-}
-
-.Home {
-  display: flex;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  flex-direction: column;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.app-header {
-  text-align: center;
-  background-color: #3b5998;
-  color: white;
-  width: 100%;
-}
-
-.app-container {
-  margin-top: 50px;
-}
-
 .room {
+  background-color: #222;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.room label {
-  text-align: center;
-  font-size: 25px;
-  margin-bottom: 20px;
+a {
+  text-decoration: none;
+  color: #FFF;
 }
-
-.room input {
+.rainbow-button {
+	margin: 0 auto;
   width: 200px;
-  height: 30px;
-  border: 2px solid #3b5998;
-  border-radius: 6px;
-  padding-left: 5px;
+  height: 60px;
+  background-image: linear-gradient(90deg, #00C0FF 0%, #FFCF00 30%, #FC4F4F 60%, #00C0FF 100%, #7a10f2 20%);
+  border-radius: 8px;
+  display: flex;
+  text-transform: uppercase;
   font-size: 20px;
-  text-align: center;
-  margin: 5px;
+  font-weight: bold;
+	position: relative;
+}
+.rainbow-button:before {
+	content: attr(alt);
+  width: 190px;
+  height: 50px;
+	position: absolute;
+	left: 5px;
+	background-color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+	margin: 0 auto;
+	margin-top: 5px;
+	border-radius: 5px;
+	-webkit-text-fill-color: transparent;
+}
+.rainbow-button:after {
+  content: attr(alt);
+  width: 190px;
+  height: 50px;
+	position: absolute;
+	left: 5px;
+	background-image: linear-gradient(90deg, #00C0FF 0%, #FFCF00 30%, #FC4F4F 60%, #00C0FF 100%, #7a10f2 20%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+	margin: 0 auto;
+	margin-top: 5px;
+	border-radius: 5px;
+	-webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+.rainbow-button:hover:after {
+	animation: slidebg .7s linear infinite;
+}
+.rainbow-button:hover {
+  animation: slidebg .7s linear infinite;
 }
 
-.room button {
-  width: 210px;
-  height: 40px;
-  border: none;
-  border-radius: 6px;
-  padding-left: 5px;
-  font-size: 20px;
-  text-align: center;
-  margin: 5px;
-  background-color: #3b5998;
-  color: white;
-  cursor: pointer;
-}
-
-.room button:first-child {
-  margin-right: 10px;
-}
-
-.sign-out {
-  margin-top: 50px;
+@keyframes slidebg {
+  to {
+    background-position: 200px;
+  }
 }

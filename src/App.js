@@ -5,7 +5,6 @@ import { signOut } from "firebase/auth";
 import {Lobby} from "./components/Lobby";
 import {Home} from "./components/Home";
 import Cookies from 'universal-cookie';
-import {Chat} from "./components/Chat";
 import {db, auth, uid,} from './firebase-config.js';
 import { getDatabase, ref, set, push, hasChild, exists,get } from "firebase/database";
 import {BrowserRouter as Router, Routes, Route, } from "react-router-dom"

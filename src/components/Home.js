@@ -5,7 +5,6 @@ import '../styles/Home.css';
 import {Auth} from "./Auth";
 import {Lobby} from "./Lobby";
 import Cookies from 'universal-cookie';
-import {Chat} from "./Chat";
 import { getDatabase, ref, set, push, hasChild, exists,get } from "firebase/database";
 import {getAuth,onAuthStateChanged, GoogleAuthProvider} from "firebase/auth"
 import {db, auth, uid,} from '../firebase-config.js';
@@ -32,9 +31,16 @@ async function createRoom() {
             playerName: auth.currentUser.displayName,
           },
         },
-        hasStarted: false,
-        playerNumber: 1,
-        maxPlayerNumber: 12,
+        status: {
+          hasStarted: false,
+          playerNumber: 1,
+        },
+        settings: {
+          maxPlayerNumber: 12,
+          lives: 3,
+          rounds: 4,
+          time: 30,
+        },
       };
       await set(newRoomRef, newRoomData);
       setRoomID(newRoomRef.key);
@@ -63,10 +69,8 @@ async function createRoom() {
     return(
       
       <div className="room">
-        <label>Enter Room Name</label>
-        <div className="button-group">
-          <button onClick={createRoom}>Create Room</button>
-        </div>
+          <a href="#" class="rainbow-button" alt="create room" onClick={createRoom}>
+</a>
       </div>
     );
   }
