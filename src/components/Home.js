@@ -23,12 +23,14 @@ export const Home = () => {
 // Generiere einen neuen Raum
 async function createRoom() {
     try {
+      // console.log("es amcht keinen sinn")
       const newRoomRef = await push(ref(db, "rooms/"));
       const newRoomData = {
         players: {
           [uid]: {
             isCreator: true,
             playerName: auth.currentUser.displayName,
+            lives: 3,
           },
         },
         status: {
@@ -42,6 +44,7 @@ async function createRoom() {
           time: 30,
         },
       };
+      // console.log("es muss doch klappen")
       await set(newRoomRef, newRoomData);
       setRoomID(newRoomRef.key);
       setShouldJoin(false);

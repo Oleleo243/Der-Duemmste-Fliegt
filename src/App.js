@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, createContext } from "react";
-import {TestComponent} from "./components/TestComponent";
 import { signOut } from "firebase/auth";
 
 import {Lobby} from "./components/Lobby";
@@ -16,9 +15,11 @@ function App() {
   const [shouldJoin, setShouldJoin] = useState(true);
 
   // window.addEventListener('beforeunload', () => { signOut(auth);});
+  // console.log("ich hab kein Bock mehr")
 
   return (
     <div className ="App">
+
       <AppContext.Provider value={{shouldJoin, setShouldJoin}}>
       <Router>
         <Routes>

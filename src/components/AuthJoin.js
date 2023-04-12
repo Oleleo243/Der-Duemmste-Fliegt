@@ -29,6 +29,7 @@ export const AuthJoin = (props) => {
     const roomRef = ref(db, `rooms/${props.roomID}`);
     const roomSnapshot = await get(roomRef);
     if (roomSnapshot.val() === null) {
+        // console.log("wenn es jetzt klappt gibt es einen Gott")
       alert("Room does not exist");
       throw new Error("Room does not exist");
     }
@@ -47,10 +48,17 @@ export const AuthJoin = (props) => {
       throw new Error("Max player limit reached");
     }
 
+    // Überprüfe, ob das Spiel bereits gestartet wurde
+    if (roomData.status.hasStarted) {
+      alert("Game already started");
+      throw new Error("Game already started");
+    }
+
     // Füge den Benutzer dem Raum hinzu
     await set(ref(db, `rooms/${props.roomID}/players/${uid}`), {
       isCreator: false,
       playerName: auth.currentUser.displayName,
+      lives: 3,
     });
 
     // Aktualisiere die playerNumber im Raum
@@ -69,6 +77,8 @@ export const AuthJoin = (props) => {
       await updateProfile(auth.currentUser, {
         displayName: data.name
       })
+              // console.log("ich will dochn ur schlafen")
+
       props.setIsAuth(true);
       joinRoom();
     } catch (err) {

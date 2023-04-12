@@ -1,6 +1,8 @@
 import {db, auth, uid,} from '../firebase-config.js';
 import { onValue,  getDatabase, ref, set, push, hasChild, exists,get } from "firebase/database";
 import { AuthJoin } from "./AuthJoin";
+
+import { Game } from "./Game";
 import { useState, useRef, useEffect, useContext } from "react";
 import {AppContext} from "../App"
 import '../styles/Lobby.css';
@@ -10,22 +12,48 @@ import '../styles/Lobby.css';
 
 
 export const Lobby = () => {
+      // console.log("penis")
+
     const [lives, setLives] = useState(3);
     const [rounds, setRounds] = useState(4);
     const [time, setTime] = useState(30);
+    const [playerNumber, setPlayerNumber] = useState(0);
     const {shouldJoin, setShouldJoin} = useContext(AppContext);
     const [players, setPlayers] = useState([]);
     const [isAuth, setIsAuth] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
     const [isCreator, setIsCreator] = useState(false);
     const url = window.location.pathname;
     const parts = url.split('/');
     const roomID = parts[2];
-
+    const [count, setCount] = useState(4);
    
+    const start = () => {
+      // Setze den Zähler auf 3
+      setCount(3);
+
+      // Warte 1 Sekunde, dann setze den Zähler auf 2
+      setTimeout(function() {
+        setCount(2);
+
+        // Warte 1 Sekunde, dann setze den Zähler auf 1
+        setTimeout(function() {
+          setCount(1);
+
+          // Warte 1 Sekunde, dann führe den restlichen Code aus
+          setTimeout(function() {
+            setCount(0);
+          }, 1000);
+        }, 1000);
+      }, 1000);
+      };
+
     useEffect(() => {
         // join Prozess
         if(shouldJoin){
           setIsCreator(true);
+              // console.log("jetzt aber ich will schlafen")
+
         }
         const playersRef = ref(db, 'rooms/' + roomID + '/players');
         const playersListener = onValue(playersRef, (snapshot) => {
@@ -35,9 +63,10 @@ export const Lobby = () => {
               return { playerID: playerID, ...playerData };
             });
             setPlayers(playersArray);
+            setPlayerNumber(playersArray.length);
           }
         });
-        
+
         // sync game Settings
         const livesRef = ref(db, 'rooms/' + roomID + '/settings/lives'); // Pfad zum ausgewählten Feld in der Realtime Database
         const livesListener = onValue(livesRef, (snapshot) => {
@@ -60,6 +89,13 @@ export const Lobby = () => {
             setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
+        const startRef = ref(db, 'rooms/' + roomID + '/status/hasStarted'); // Pfad zum ausgewählten Feld in der Realtime Database
+        const startListener = onValue(startRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            start(); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+          }
+        });
         
       }, []);
       
@@ -67,7 +103,7 @@ export const Lobby = () => {
 
     // bei release das davor packen https://
     const copyToClipboard = () => {
-        const copyText = `${window.location.hostname}:3000/room/${roomID}`;
+        const copyText = `https://${window.location.hostname}/room/${roomID}`;
         navigator.clipboard.writeText(copyText);
       };
 
@@ -85,6 +121,10 @@ export const Lobby = () => {
         set(ref(db, 'rooms/' + roomID + '/settings/time'), e.target.value);
         setTime(e.target.value);
       };
+
+      const handleGameStart = (e) => {
+        set(ref(db, 'rooms/' + roomID + '/status/hasStarted'), true);
+      };
       
       // mit uid anstat isAuth ist eigentlic besser 
       if(  (shouldJoin)){
@@ -94,16 +134,14 @@ export const Lobby = () => {
           </div>
         );
       }
+   
 
-
-
-      if (!shouldJoin) {
+      if (!shouldJoin && (count > 0)) {
         return (
           <div className="lobby-container" >
             <div className="lobby-box">
             <h1 className="lobby-title" >Game Settings</h1>
-            
-            <form id="gameSettingsForm">
+              {count < 4 && <h1>{count}</h1>}            <form id="gameSettingsForm">
               <label>Lives:</label>
               <select
                 id="livesInput"
@@ -168,29 +206,29 @@ export const Lobby = () => {
                 <option value="180">180s</option>
               </select>
               <br />
-              <button className="lobby-start-button" type="submit" disabled={isCreator}>
-                Start
-              </button>
             </form>
+            <button className="lobby-start-button" onClick={handleGameStart} disabled={isCreator}> Start </button>
+
             </div>
 
             <div className="Players">
+            <h2>{playerNumber}/12</h2>
             <h2>Spielerliste:</h2>
              {players.map((player, index) => (
               <h3 key={index}>{player.playerName}</h3>
             ))}
             </div>
             <div>
-            <p>Einaldungslink: {window.location.hostname}:3000/room/{roomID}</p>
+            <p>Einaldungslink: https://{window.location.hostname}:3000/room/{roomID}</p>
             <button onClick={copyToClipboard}>Link kopieren</button>
             </div>
           </div>
-
-          
-              
         );
+        
       }
-      
+      if ((!shouldJoin) && (count === 0)) {
+       return( <div><Game lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomId={roomID}setSlayerNumber={setPlayerNumber} players={players}/></div>)
+      }
       
         }
 

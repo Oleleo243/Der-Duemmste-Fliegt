@@ -22,7 +22,7 @@ const firebaseConfig = {
 
 };
 
-// Initialize Firebase
+// Initialize Firebase test test spinat
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 export const auth = getAuth(app);
@@ -30,12 +30,14 @@ export const auth = getAuth(app);
 export let uid = null;
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in, see docs for a list of available properties
+    // console.log("scheiße warum geht da nicht")
     uid = user.uid;
   } else {
   }
 });
 export const provider = new GoogleAuthProvider();
+    // console.log("komm schon bitte")
+
 //export const db = getFirestore(app);
 export const db = getDatabase(app);
 
