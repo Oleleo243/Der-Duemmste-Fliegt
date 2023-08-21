@@ -68,7 +68,6 @@ export const AuthJoin = (props) => {
     });
     // sage der ui das der Prozess fertig ist
     setShouldJoin(false);
-    console.log(shouldJoin);
   }
 
   const signIn = async (data) => {

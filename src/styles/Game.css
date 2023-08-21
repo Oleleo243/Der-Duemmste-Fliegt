@@ -1,0 +1,76 @@
+/* CSS für Game-Komponente */
+/* Hier anpassen und in eine separate CSS-Datei speichern */
+
+/* Stile für Infoleiste */
+.InfoLeiste {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 10px;
+  }
+  
+  .InfoLeiste h1 {
+    margin: 0;
+  }
+  
+  /* Stile für Spielerliste */
+  .Players {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: #f8f8f8;
+    padding: 10px;
+    width: 200px; /* Breite der Spielerliste anpassen */
+  }
+  
+  .Players div {
+    margin-bottom: 10px;
+  }
+  
+  .Players h2 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .Players span {
+    padding: 2px 5px;
+  }
+  
+  .Players span,
+  .Players h2 {
+    display: inline-block;
+  }
+  
+  .Players span:first-child {
+    margin-right: 5px;
+  }
+  
+  .Players span:last-child {
+    font-size: 24px;
+  }
+  
+  /* Stile für das Spiel */
+  .game {
+    margin-top: 20vh; /* Margin von oben anpassen */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* Mindesthöhe auf 60% der Bildschirmhöhe anpassen */
+  }
+  
+  .game h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+  
+  .game input {
+    margin-top: 10px;
+  }
+  
+  .game button {
+    margin-top: 10px;
+  }
+  

@@ -33,6 +33,12 @@ async function createRoom() {
             lives: 3,
           },
         },
+        questions: {
+          question: "",
+          correctAnswer: "",
+          playerAnswer: "",
+
+        },
         status: {
           hasStarted: false,
           playerNumber: 1,
@@ -72,8 +78,7 @@ async function createRoom() {
     return(
       
       <div className="room">
-          <a href="#" class="rainbow-button" alt="create room" onClick={createRoom}>
-</a>
+                  <a href="#" className="rainbow-button" alt="create room" onClick={createRoom}></a>
       </div>
     );
   }

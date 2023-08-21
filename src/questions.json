@@ -1,0 +1,56 @@
+{
+  "fragen": [
+    {
+      "frage": "Was ist die Hauptstadt von Deutschland?",
+      "antwort": "Berlin"
+    },
+    {
+      "frage": "Was ist der beste italienische Restaurant?",
+      "antwort": "Bel Paese"
+    },
+    {
+      "frage": "Was ist der höchste Berg der Welt?",
+      "antwort": "Mount Everest"
+    },
+    {
+      "frage": "Was ist die Hauptstadt von Frankreich?",
+      "antwort": "Paris"
+    },
+    {
+      "frage": "Wie viele Kontinente gibt es auf der Erde?",
+      "antwort": "7"
+    },
+    {
+      "frage": "Was ist die Hauptzutat von Sushi?",
+      "antwort": "Roher Fisch"
+    },
+    {
+      "frage": "Wie viele Sterne hat die US-amerikanische Flagge?",
+      "antwort": "50"
+    },
+    {
+      "frage": "Was ist die Währung von Japan?",
+      "antwort": "Japanischer Yen"
+    },
+    {
+      "frage": "Was ist die Hauptstadt von Australien?",
+      "antwort": "Canberra"
+    },
+    {
+      "frage": "Wie viele Bundesstaaten hat die USA?",
+      "antwort": "50"
+    },
+    {
+      "frage": "Was ist die Hauptstadt von Kanada?",
+      "antwort": "Ottawa"
+    },
+    {
+      "frage": "Wie viele Spieler sind in einem Basketball-Team?",
+      "antwort": "5"
+    },
+    {
+      "frage": "Was ist die Hauptzutat von Guacamole?",
+      "antwort": "Avocado"
+    }
+  ]
+}

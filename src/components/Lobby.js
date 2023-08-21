@@ -1,11 +1,12 @@
 import {db, auth, uid,} from '../firebase-config.js';
-import { onValue,  getDatabase, ref, set, push, hasChild, exists,get } from "firebase/database";
+import { onValue,  getDatabase, ref, set, push, hasChild, exists,get, serverTimestamp } from "firebase/database";
 import { AuthJoin } from "./AuthJoin";
 
 import { Game } from "./Game";
 import { useState, useRef, useEffect, useContext } from "react";
 import {AppContext} from "../App"
 import '../styles/Lobby.css';
+import { timer} from '../utilities/gameFunctions'
 
 
 
@@ -26,29 +27,20 @@ export const Lobby = () => {
     const url = window.location.pathname;
     const parts = url.split('/');
     const roomID = parts[2];
-    const [count, setCount] = useState(4);
-   
-    const start = () => {
-      // Setze den Zähler auf 3
-      setCount(3);
+    const [count, setCount] = useState(6.0);
+    let serverTimeOffset = 0;
+    const [startedAt, setStartedAt] = useState(null);
+    let timeLeft = 3;
+    
+    
 
-      // Warte 1 Sekunde, dann setze den Zähler auf 2
-      setTimeout(function() {
-        setCount(2);
 
-        // Warte 1 Sekunde, dann setze den Zähler auf 1
-        setTimeout(function() {
-          setCount(1);
 
-          // Warte 1 Sekunde, dann führe den restlichen Code aus
-          setTimeout(function() {
-            setCount(0);
-          }, 1000);
-        }, 1000);
-      }, 1000);
-      };
+    
 
     useEffect(() => {
+      //console.log(count);
+      //console.log(shouldJoin);
         // join Prozess
         if(shouldJoin){
           setIsCreator(true);
@@ -89,11 +81,21 @@ export const Lobby = () => {
             setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
-        const startRef = ref(db, 'rooms/' + roomID + '/status/hasStarted'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const startListener = onValue(startRef, (snapshot) => {
+        
+        const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
           const data = snapshot.val();
           if (data) {
-            start(); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            serverTimeOffset = snapshot.val()
+          }
+        });
+        const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
+        const startAtListener = onValue(startAtRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setStartedAt( data);
+            setCount(0);
+            //console.log("startedAt1: " + startedAt);
+            //timer(3, setCount, startedAt, serverTimeOffset); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
         
@@ -123,6 +125,7 @@ export const Lobby = () => {
       };
 
       const handleGameStart = (e) => {
+        set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
         set(ref(db, 'rooms/' + roomID + '/status/hasStarted'), true);
       };
       
@@ -227,7 +230,9 @@ export const Lobby = () => {
         
       }
       if ((!shouldJoin) && (count === 0)) {
-       return( <div><Game lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomId={roomID}setSlayerNumber={setPlayerNumber} players={players}/></div>)
+        //console.log("startedAt2: " + startedAt);
+       // console.log("lives: " + lives);
+        return( <div><Game lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomID={roomID}setSlayerNumber={setPlayerNumber} players={players}  serverTimeOffset={serverTimeOffset} startedAt={startedAt} setStartedAt={setStartedAt}/></div>)
       }
       
         }
