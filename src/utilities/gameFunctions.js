@@ -16,7 +16,7 @@ export const getRandomQuestion = () => {
 }
 
 
-
+/*
 let timerId; // Variable, um die ID des Intervals zu speichern
 let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
 export const timer = (time, setCount, startAt, serverTimeOffset) => {
@@ -28,12 +28,13 @@ export const timer = (time, setCount, startAt, serverTimeOffset) => {
         setCount(0.0);
         resolve(); // Resolve the Promise when the timer completes
       } else {
-        setCount(parseFloat(`${Math.floor(timeLeft/1000)}.${timeLeft % 1000}`));
+        //setCount(parseFloat(`${Math.floor(timeLeft/1000)}.${timeLeft % 1000}`));
+        setCount(Math.floor(timeLeft / 1000)); // Zeile geändert
       }
     }, 100);
   });
 };
-
+*/
 
 /*
 export const timer = async (time, setCount, startAt, serverTimeOffset) => {

@@ -2,28 +2,53 @@ import {initGame, getRandomQuestion, timer} from '../utilities/gameFunctions'
 import { useState, useRef, useEffect, useContext } from "react";
 import '../styles/Game.css';
 import {db, auth, uid} from '../firebase-config.js';
-import {Intro} from "./Intro";
-import {Outro} from "./Outro";
 import { onValue,  getDatabase, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
+import { Voting } from "./Voting";
+
 
 
 export const Game = ({isCreator, lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID}) => {
 const [count, setCount] = useState(time);
-const [round, setRound] = useState(0);
-const [intro, setIntro] = useState(false);
-const [outro, setOutro] = useState(false);
+const [round, setRound] = useState(1);
+const [answerInDB, setAnswerInDB] = useState(null);
+const penis = 12;
+const [voting, setVoting] = useState(false);
+const [votingNumber, setVotingNumber] = useState(1);
 const [playerIsPlaying, setPlayerIsPlaying] = useState(1);
 const [randomQuestion, setRandomQuestion] = useState("");
-const [tmp, setTmp] = useState(0);
+const [tmp, setTmp] = useState(1);
 const [correctAnswer, setCorrectAnswer] = useState("");
 const [myTurn, setMyTurn] = useState(false);
 const [playerAnswer, setPlayerAnswer] = useState("");
 const inputRef = useRef(null);
 const [startedAt, setStartedAt] = useState(null);
+const [listenerSet, setListenerSet] = useState(false); // State-Flag hinzugefügt
 let serverTimeOffset = 0;
+const [playerCounter, setPlayerCounter] = useState(0);
+const [intervalID, setIntervalID] = useState(0);
 
 //const [startedAt, setStartedAt] = useState(0);
 
+
+let timerId; // Variable, um die ID des Intervals zu speichern
+let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
+const timer = (time, setCount, startAt, serverTimeOffset) => {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      setIntervalID(interval);
+      //console.log("intervalid1: " + intervalID);
+      const timeLeft = (time * 1000) - (Date.now() - startAt - serverTimeOffset);
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        setCount(0.0);
+        resolve(); // Resolve the Promise when the timer completes
+      } else {
+        //setCount(parseFloat(`${Math.floor(timeLeft/1000)}.${timeLeft % 1000}`));
+        setCount(Math.floor(timeLeft / 1000)); // Zeile geändert
+      }
+    }, 100);
+  });
+};
 
 
     useEffect(() => {
@@ -33,37 +58,33 @@ let serverTimeOffset = 0;
           serverTimeOffset = snapshot.val()
         }
       });
+      
 
       const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
-      const startAtListener = onValue(startAtRef, async (snapshot) => {
+      const startAtListener = onValue(startAtRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          setStartedAt(data);
+           setStartedAt(data);
         }
       });
-      
+  
+      const AnswerInDBRef = ref(db, 'rooms/' + roomID + '/history'); // Pfad zum ausgewählten Feld in der Realtime Database
+      const AnswerInDBListener = onValue(AnswerInDBRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          console.log("AnswerInDBRef Event Listener wurde aufgerufen" + data)
+           setAnswerInDB(true);
+        }
+      });
         initGame(roomID, lives, players, db);
-        console.log("intro animation:" + "Spieler ist dran:" + "Frage");
+        //console.log("intro animation:" + "Spieler ist dran:" + "Frage");
+        //setStartedAt(serverTimestamp());
         if(!isCreator){
           set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
         }
 
-      /*
-        const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              serverTimeOffset = snapshot.val()
-            }
-          });
-          const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
-          const startAtListener = onValue(startAtRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              setStartedAt(data);
-              console.log("DSAAAAAA")
-            }
-          });
-          */
+
+
         const questionRef = ref(db, 'rooms/' + roomID + '/questions/question'); // Pfad zum ausgewählten Feld in der Realtime Database
         const questionListener = onValue(questionRef, (snapshot) => {
           const data = snapshot.val();
@@ -89,7 +110,7 @@ let serverTimeOffset = 0;
         });
 
         // einfach jedes mal started ad aktuellisieren oder started ad -30
-        const gameLoop = async () => {
+       // const gameLoop = async () => {
 /*
            for (let i = 1; i <= rounds; i++) {
                 //console.log("RUNDE " + i);
@@ -128,42 +149,104 @@ let serverTimeOffset = 0;
                 }
             }
             */
-         }
+        // }
          
           
     }, []);
-
+    
     useEffect(() => {
       const gameLoop = async () => {
-        if (startedAt !== null) {
-          console.log(round);
-          setRound(round+1);
-          await timer(time, setCount, startedAt, serverTimeOffset);
-          console.log("outro animation:" + "Spieler ... gab ... Antwort")
-          console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
+        // checkt ob ich dran bin
+        setMyTurn(false);                        
+          if(players[playerCounter].playerID === uid){    
+            setMyTurn(true);                                     
+          }
+    
+        // sucht fragen raus                    
+        if(!isCreator){                 
+            const tmp= getRandomQuestion();
+            await set(ref(db, 'rooms/' + roomID + '/questions/question'), tmp.frage);
+            await set(ref(db, 'rooms/' + roomID + '/questions/correctAnswer'), tmp.antwort);
+        }
+
+        console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
+
+        await timer(time, setCount, startedAt, serverTimeOffset);
+        console.log("send Answer wird im gameLoop aufgerufen")
+        sendAnswer();      };
+      // serverTimestamp() gibt 2 triggers vom listener mit der lokalen und mit der server Zeit deswegen braucht man das
+      if(startedAt !== null){
           if (!isCreator) {
-            set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+          if(tmp === 2){
+            gameLoop();
+            setTmp(currentTmp => {
+              return currentTmp + -1
+            });
+          }
+          else{
+            setTmp(currentTmp => {
+              return currentTmp +1
+            });
           }
         }
-      };
-    
-      gameLoop();
+        else{
+          console.log("der gameloop wird gecalled");
+          gameLoop();
+        }
+      }
     }, [startedAt]);
 
+ 
+    useEffect(() => {
+    const finishRound = async() => {
+      console.log("finish Round wurde aufgerufen")
+      clearInterval(intervalID);
+      setCount(0);
+      console.log("outro animation:" + "Spieler ... gab ... Antwort")
 
-    if(intro){
-        return(<Intro player={players[playerIsPlaying-1]}  uid={uid} randomQuestion={randomQuestion}/>)
-    }
-    if(outro){
-        return(<Outro randomQuestion={randomQuestion} correctAnswer={correctAnswer}/>)
+      // manage wer dran ist und runden
+      // das verursacht wahrscheinlich manchmal ein bug falls die timer zeit klein ist weil setPlayerCounter asynchron ist und deswegen nicht schnell genug aktuellisiert bevoir es wieder beim if statement ist. Der Bugg ewnsteht also durch das oberste if statement und lässt sich durch ein weiteres use effect verhindern 
+      if(playerNumber <= (playerCounter + 1)){
+       setPlayerCounter(0);
+       if((round+1) > rounds){
+         setVoting(true);
+         setRound(1);
+       }else{
+         setRound(currentRound => {
+           return currentRound + 1
+         });
+     }
 
-    }
+     }else{
+       setPlayerCounter(currentPlayerCounter => {
+       return currentPlayerCounter + 1
+     });
+     
+     // starte neuen loop
+     }
+      if (!isCreator) {
+        await set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+       }
+    };
+    console.log(answerInDB);
+    finishRound();
+  }, [penis]);
+//  }, [answerInDB]);
 
-    if(!intro && !outro){
+  const sendAnswer = async() => {
+    console.log("send Answer Funktion wurde aufgerufen")
+    const personalHistory = {
+      Question: randomQuestion, // Passe den Nachrichtentext an
+      Answer: inputRef.current.value,
+    };
+    await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
+  }
+  
+    if(!voting){
         return(
         <div>
             <div className = "InfoLeiste">
-                <h1>{players[playerIsPlaying-1].playerName} is answering...</h1>
+                <h1>{players[playerCounter].playerName} is answering...</h1>
                 <h1>{count}</h1>
                 <h1>{round}/{rounds}</h1>
             </div>
@@ -179,7 +262,7 @@ let serverTimeOffset = 0;
                     ) : (
                         player.playerName
                     )}
-                    {index === playerIsPlaying - 1 && <span>←</span>}
+                    {index === playerCounter && <span>←</span>}
                     <br />
                     {player.lives} Leben
                     </h2>
@@ -191,10 +274,14 @@ let serverTimeOffset = 0;
             <div className="game">
                 <h1>{randomQuestion}?</h1>
                 <input type="text" value={playerAnswer} ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
-                <button >button</button>
+                <button onClick={sendAnswer}>button</button>
             </div>
         </div>
         )}
-    
+    if(voting){
+      return(
+        <div><Voting players={players}/></div>
+      );
+    }
     
 }

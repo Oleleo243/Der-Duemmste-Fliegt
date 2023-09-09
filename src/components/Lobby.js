@@ -78,21 +78,15 @@ export const Lobby = () => {
         const hasStartedRef = ref(db, 'rooms/' + roomID + '/status/hasStarted'); // Pfad zum ausgewählten Feld in der Realtime Database
         const hasStartedListener = onValue(hasStartedRef, (snapshot) => {
           const data = snapshot.val();
-          console.log("AAA")
           if (data) {
-            console.log(data);
             setHasStarted(true); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-            console.log(hasStarted);
-
           }
         });
         
 
       }, []);
       
-      useEffect(() => {
-        console.log("dsad " + hasStarted)
-      }, [hasStarted]);
+  
 
     // bei release das davor packen https://
     const copyToClipboard = () => {
@@ -116,7 +110,6 @@ export const Lobby = () => {
       };
 
       const handleGameStart = (e) => {
-        console.log("BBB")
         set(ref(db, 'rooms/' + roomID + '/status/hasStarted'), true);
       };
       
