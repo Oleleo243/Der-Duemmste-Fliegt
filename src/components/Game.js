@@ -4,10 +4,10 @@ import '../styles/Game.css';
 import {db, auth, uid} from '../firebase-config.js';
 import {Intro} from "./Intro";
 import {Outro} from "./Outro";
-import { onValue,  getDatabase, ref, set, push, hasChild, exists,get,  serverTimestamp } from "firebase/database";
+import { onValue,  getDatabase, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
 
 
-export const Game = ({lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID, serverTimeOffset, startedAt, setStartedAt}) => {
+export const Game = ({isCreator, lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID}) => {
 const [count, setCount] = useState(time);
 const [round, setRound] = useState(0);
 const [intro, setIntro] = useState(false);
@@ -19,15 +19,51 @@ const [correctAnswer, setCorrectAnswer] = useState("");
 const [myTurn, setMyTurn] = useState(false);
 const [playerAnswer, setPlayerAnswer] = useState("");
 const inputRef = useRef(null);
+const [startedAt, setStartedAt] = useState(null);
+let serverTimeOffset = 0;
+
+//const [startedAt, setStartedAt] = useState(0);
 
 
 
     useEffect(() => {
-        console.log("COUNT: "+count+" TIME: " + time)
+      const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          serverTimeOffset = snapshot.val()
+        }
+      });
 
+      const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
+      const startAtListener = onValue(startAtRef, async (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setStartedAt(data);
+        }
+      });
+      
         initGame(roomID, lives, players, db);
+        console.log("intro animation:" + "Spieler ist dran:" + "Frage");
+        if(!isCreator){
+          set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+        }
 
-       
+      /*
+        const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              serverTimeOffset = snapshot.val()
+            }
+          });
+          const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
+          const startAtListener = onValue(startAtRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              setStartedAt(data);
+              console.log("DSAAAAAA")
+            }
+          });
+          */
         const questionRef = ref(db, 'rooms/' + roomID + '/questions/question'); // Pfad zum ausgewählten Feld in der Realtime Database
         const questionListener = onValue(questionRef, (snapshot) => {
           const data = snapshot.val();
@@ -51,11 +87,11 @@ const inputRef = useRef(null);
             setPlayerAnswer(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
-        
+
         // einfach jedes mal started ad aktuellisieren oder started ad -30
         const gameLoop = async () => {
-
-            for (let i = 1; i <= rounds; i++) {
+/*
+           for (let i = 1; i <= rounds; i++) {
                 //console.log("RUNDE " + i);
                 setRound(i);
                 for(let j = 1; j <= playerNumber; j++){
@@ -73,22 +109,47 @@ const inputRef = useRef(null);
 
                     //setIntro(false);
                     //console.log("startedAt:" +startedAt + " serverTimeOffset: "+serverTimeOffset)
-                    await timer(time, setCount, startedAt+((j-1)*30000), serverTimeOffset);
+                    //await set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+                   // console.log( startedAt);
+                    //await timer(time, setCount, startedAt, serverTimeOffset);
                     if(players[j-1].playerID === uid){
                         await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), inputRef.current.value);
                     }
+                   set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+
+                    /*
                     await timer(5, setCount, startedAt, serverTimeOffset);
                     setOutro(true);
                     inputRef.current.value = "";
                     setPlayerAnswer("");
                     await timer(5, setCount, startedAt, serverTimeOffset);
                     setOutro(false);
+                    
                 }
             }
+            */
          }
-         gameLoop();
+         
           
     }, []);
+
+    useEffect(() => {
+      const gameLoop = async () => {
+        if (startedAt !== null) {
+          console.log(round);
+          setRound(round+1);
+          await timer(time, setCount, startedAt, serverTimeOffset);
+          console.log("outro animation:" + "Spieler ... gab ... Antwort")
+          console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
+          if (!isCreator) {
+            set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+          }
+        }
+      };
+    
+      gameLoop();
+    }, [startedAt]);
+
 
     if(intro){
         return(<Intro player={players[playerIsPlaying-1]}  uid={uid} randomQuestion={randomQuestion}/>)

@@ -8,10 +8,6 @@ import {AppContext} from "../App"
 import '../styles/Lobby.css';
 import { timer} from '../utilities/gameFunctions'
 
-
-
-
-
 export const Lobby = () => {
       // console.log("penis")
 
@@ -28,10 +24,8 @@ export const Lobby = () => {
     const parts = url.split('/');
     const roomID = parts[2];
     const [count, setCount] = useState(6.0);
-    let serverTimeOffset = 0;
     const [startedAt, setStartedAt] = useState(null);
     let timeLeft = 3;
-    
     
 
 
@@ -81,27 +75,24 @@ export const Lobby = () => {
             setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
-        
-        const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
+        const hasStartedRef = ref(db, 'rooms/' + roomID + '/status/hasStarted'); // Pfad zum ausgewählten Feld in der Realtime Database
+        const hasStartedListener = onValue(hasStartedRef, (snapshot) => {
           const data = snapshot.val();
+          console.log("AAA")
           if (data) {
-            serverTimeOffset = snapshot.val()
-          }
-        });
-        const startAtRef = ref(db, 'rooms/' + roomID + '/status/startAt'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const startAtListener = onValue(startAtRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setStartedAt( data);
-            setCount(0);
-            //console.log("startedAt1: " + startedAt);
-            //timer(3, setCount, startedAt, serverTimeOffset); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            console.log(data);
+            setHasStarted(true); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            console.log(hasStarted);
+
           }
         });
         
+
       }, []);
       
-
+      useEffect(() => {
+        console.log("dsad " + hasStarted)
+      }, [hasStarted]);
 
     // bei release das davor packen https://
     const copyToClipboard = () => {
@@ -125,7 +116,7 @@ export const Lobby = () => {
       };
 
       const handleGameStart = (e) => {
-        set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
+        console.log("BBB")
         set(ref(db, 'rooms/' + roomID + '/status/hasStarted'), true);
       };
       
@@ -139,7 +130,7 @@ export const Lobby = () => {
       }
    
 
-      if (!shouldJoin && (count > 0)) {
+      if (!shouldJoin && (hasStarted === false)) {
         return (
           <div className="lobby-container" >
             <div className="lobby-box">
@@ -229,10 +220,10 @@ export const Lobby = () => {
         );
         
       }
-      if ((!shouldJoin) && (count === 0)) {
+      if ((!shouldJoin) && (hasStarted === true)) {
         //console.log("startedAt2: " + startedAt);
        // console.log("lives: " + lives);
-        return( <div><Game lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomID={roomID}setSlayerNumber={setPlayerNumber} players={players}  serverTimeOffset={serverTimeOffset} startedAt={startedAt} setStartedAt={setStartedAt}/></div>)
+        return( <div><Game isCreator={isCreator} lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomID={roomID}setSlayerNumber={setPlayerNumber} players={players}/></div>)
       }
       
         }
