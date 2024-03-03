@@ -7,10 +7,16 @@ import { useState, useRef, useEffect, useContext } from "react";
 import {AppContext} from "../App"
 import '../styles/Lobby.css';
 import { timer} from '../utilities/gameFunctions'
+import { createAvatar } from '@dicebear/core';
+import { avataaars, lorelei } from '@dicebear/collection';
+import { useMemo } from 'react';
+
 
 export const Lobby = () => {
-      // console.log("penis")
 
+ 
+
+    
     const [lives, setLives] = useState(3);
     const [rounds, setRounds] = useState(4);
     const [time, setTime] = useState(30);
@@ -86,7 +92,15 @@ export const Lobby = () => {
 
       }, []);
       
-  
+       // erstelle avatare
+  // https://www.dicebear.com/styles/avataaars/
+  const avatars = useMemo(() => {
+    return players.map(player => createAvatar(avataaars, {
+      size: 128,
+      seed: player.playerName,
+    }).toDataUriSync());
+  }, [players]);
+
 
     // bei release das davor packen https://
     const copyToClipboard = () => {
@@ -201,9 +215,16 @@ export const Lobby = () => {
             <div className="Players">
             <h2>{playerNumber}/12</h2>
             <h2>Spielerliste:</h2>
-             {players.map((player, index) => (
-              <h3 key={index}>{player.playerName}</h3>
-            ))}
+
+
+            {players.map((player, index) => (
+             <div key={player.playerName}>
+              <h3>{player.playerName}</h3>
+              <img src={avatars[index]} alt="Avatar" />
+
+            </div>
+          ))}
+
             </div>
             <div>
             <p>Einaldungslink: https://{window.location.hostname}:3000/room/{roomID}</p>

@@ -4,13 +4,15 @@ import '../styles/Game.css';
 import {db, auth, uid} from '../firebase-config.js';
 import { onValue,  getDatabase, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
 import { Voting } from "./Voting";
-
+import { createAvatar } from '@dicebear/core';
+import { avataaars, lorelei } from '@dicebear/collection';
+import { useMemo } from 'react';
 
 
 export const Game = ({isCreator, lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID}) => {
 const [count, setCount] = useState(time);
 const [round, setRound] = useState(1);
-const [answerInDB, setAnswerInDB] = useState(null);
+const [answerInDB, setAnswerInDB] = useState(0);
 const penis = 12;
 const [voting, setVoting] = useState(false);
 const [votingNumber, setVotingNumber] = useState(1);
@@ -32,6 +34,14 @@ const [intervalID, setIntervalID] = useState(0);
 
 let timerId; // Variable, um die ID des Intervals zu speichern
 let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
+
+const avatars = useMemo(() => {
+  return players.map(player => createAvatar(avataaars, {
+    size: 50,
+    seed: player.playerName,
+  }).toDataUriSync());
+}, [players]);
+
 const timer = (time, setCount, startAt, serverTimeOffset) => {
   return new Promise((resolve) => {
     const interval = setInterval(() => {
@@ -52,6 +62,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
     useEffect(() => {
+      console.log("ain usefect anach oder daor?");
       const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -67,13 +78,17 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
            setStartedAt(data);
         }
       });
+
+      
   
       const AnswerInDBRef = ref(db, 'rooms/' + roomID + '/history'); // Pfad zum ausgewählten Feld in der Realtime Database
       const AnswerInDBListener = onValue(AnswerInDBRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
           console.log("AnswerInDBRef Event Listener wurde aufgerufen" + data)
-           setAnswerInDB(true);
+            setAnswerInDB(currentTmp => {
+            return currentTmp +1
+          });
         }
       });
         initGame(roomID, lives, players, db);
@@ -198,6 +213,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
  
     useEffect(() => {
+    if(answerInDB !== 0){
     const finishRound = async() => {
       console.log("finish Round wurde aufgerufen")
       clearInterval(intervalID);
@@ -210,7 +226,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
        setPlayerCounter(0);
        if((round+1) > rounds){
          setVoting(true);
-         setRound(1);
+         return;
+         console.log("Dinosaurier");
        }else{
          setRound(currentRound => {
            return currentRound + 1
@@ -219,26 +236,32 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
      }else{
        setPlayerCounter(currentPlayerCounter => {
-       return currentPlayerCounter + 1
+       return currentPlayerCounter + 1;
      });
-     
-     // starte neuen loop
+      
      }
+          // starte neuen loop
+
       if (!isCreator) {
         await set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
        }
     };
+    
     console.log(answerInDB);
     finishRound();
-  }, [penis]);
-//  }, [answerInDB]);
+  }
+  }, [answerInDB]);
 
   const sendAnswer = async() => {
-    console.log("send Answer Funktion wurde aufgerufen")
+    console.log("send Answer Funktion wurde aufgerufen");
     const personalHistory = {
       Question: randomQuestion, // Passe den Nachrichtentext an
       Answer: inputRef.current.value,
     };
+    //delete answer from input field
+    setPlayerAnswer("");
+
+    // send to database
     await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
   }
   
@@ -265,6 +288,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                     {index === playerCounter && <span>←</span>}
                     <br />
                     {player.lives} Leben
+                    <img src={avatars[index]} alt="Avatar" />
+
                     </h2>
                 </div>
                 ))}
@@ -273,8 +298,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
             <div className="game">
                 <h1>{randomQuestion}?</h1>
-                <input type="text" value={playerAnswer} ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
-                <button onClick={sendAnswer}>button</button>
+                <input type="text" id="meinInputFeld" value={playerAnswer} ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
+                <button onClick={sendAnswer} disabled={!(players[playerCounter].playerID === uid)}>button</button>
             </div>
         </div>
         )}

@@ -4,9 +4,14 @@ import '../styles/Auth.css';
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useMemo } from 'react';
+import { createAvatar } from '@dicebear/core';
+import { avataaars, lorelei } from '@dicebear/collection';
+import {getRandomBoolean} from '../utilities/helperFunctions';
+
 
 export const Auth = (props) => {
-
+  
   const schema = yup.object().shape({
     name: yup.string().required("Please write a Nickname"),
   });

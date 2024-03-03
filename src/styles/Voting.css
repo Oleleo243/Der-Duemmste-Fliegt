@@ -1,0 +1,30 @@
+/* styles.css (oder eine andere Datei, die du bevorzugst) */
+
+/* Container für die Voting-Komponente */
+.voting-container {
+  text-align: center;
+  margin: 20px;
+}
+
+/* Überschrift */
+.voting-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Spielerbuttons */
+.player-button {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Deaktivierter Spielerbutton */
+.player-button[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
