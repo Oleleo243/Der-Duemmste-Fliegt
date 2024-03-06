@@ -2,11 +2,14 @@ import {initGame, getRandomQuestion, timer} from '../utilities/gameFunctions'
 import { useState, useRef, useEffect, useContext } from "react";
 import '../styles/Game.css';
 import {db, auth, uid} from '../firebase-config.js';
-import { onValue,  getDatabase, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
+import { onValue,  getDatabase, onChildChanged, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
 import { Voting } from "./Voting";
 import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
 import { useMemo } from 'react';
+
+let dummyCounter = 0;
+console.log("dummyCounter wird 0 gesetzt");
 
 
 export const Game = ({isCreator, lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID}) => {
@@ -19,6 +22,7 @@ const [votingNumber, setVotingNumber] = useState(1);
 const [playerIsPlaying, setPlayerIsPlaying] = useState(1);
 const [randomQuestion, setRandomQuestion] = useState("");
 const [tmp, setTmp] = useState(1);
+
 const [correctAnswer, setCorrectAnswer] = useState("");
 const [myTurn, setMyTurn] = useState(false);
 const [playerAnswer, setPlayerAnswer] = useState("");
@@ -34,6 +38,8 @@ const [intervalID, setIntervalID] = useState(0);
 
 let timerId; // Variable, um die ID des Intervals zu speichern
 let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
+
+const wait = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 const avatars = useMemo(() => {
   return players.map(player => createAvatar(avataaars, {
@@ -81,20 +87,30 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
       
   
-      const AnswerInDBRef = ref(db, 'rooms/' + roomID + '/history'); // Pfad zum ausgewählten Feld in der Realtime Database
+      //const AnswerInDBRef = ref(db, 'rooms/' + roomID + '/history'); // Pfad zum ausgewählten Feld in der Realtime Database
+      const AnswerInDBRef = ref(db, 'rooms/' + roomID + '/questions/playerAnswer'); // Pfad zum ausgewählten Feld in der Realtime Database
+
       const AnswerInDBListener = onValue(AnswerInDBRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          console.log("AnswerInDBRef Event Listener wurde aufgerufen" + data)
+            // erhöhe um andere useEffect zu triggern
+            console.log("empfangenen dummy: "+ data.dummy)
+                      // aktuellisiere damit nicht zwei mal das selbe in firebase database geschrieben wird und firebase onValueTriggered
+
+            //dummyCounter = data.dummy;
+
             setAnswerInDB(currentTmp => {
             return currentTmp +1
           });
+          
+          
         }
       });
-        initGame(roomID, lives, players, db);
         //console.log("intro animation:" + "Spieler ist dran:" + "Frage");
         //setStartedAt(serverTimestamp());
         if(!isCreator){
+          initGame(roomID, lives, players, db);
+
           set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
         }
 
@@ -170,6 +186,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     }, []);
     
     useEffect(() => {
+      console.log("oleeeeee");
       const gameLoop = async () => {
         // checkt ob ich dran bin
         setMyTurn(false);                        
@@ -185,7 +202,6 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
         }
 
         console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
-
         await timer(time, setCount, startedAt, serverTimeOffset);
         console.log("send Answer wird im gameLoop aufgerufen")
         sendAnswer();      };
@@ -217,8 +233,11 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     const finishRound = async() => {
       console.log("finish Round wurde aufgerufen")
       clearInterval(intervalID);
+
+
       setCount(0);
-      console.log("outro animation:" + "Spieler ... gab ... Antwort")
+      
+
 
       // manage wer dran ist und runden
       // das verursacht wahrscheinlich manchmal ein bug falls die timer zeit klein ist weil setPlayerCounter asynchron ist und deswegen nicht schnell genug aktuellisiert bevoir es wieder beim if statement ist. Der Bugg ewnsteht also durch das oberste if statement und lässt sich durch ein weiteres use effect verhindern 
@@ -243,6 +262,9 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
           // starte neuen loop
 
       if (!isCreator) {
+        // warte 3s bevor nächster spieler dran ist
+        await wait(3000);
+        
         await set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
        }
     };
@@ -259,17 +281,38 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       Answer: inputRef.current.value,
     };
     //delete answer from input field
-    setPlayerAnswer("");
 
     // send to database
     await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
+
+    // erhöhe AnswerCounter
+    console.log("DummyCounter pre:" + dummyCounter);
+    dummyCounter ++;
+    console.log("DummyCounter post:" + dummyCounter);
+
+    const currAnswer = {
+      Answer: inputRef.current.value,
+      dummy: dummyCounter, 
+    };
+
+    const currEmptyAnswer = {
+      Answer: "nothing",
+      dummy: dummyCounter, 
+    };
+    if(inputRef.current.value === null || inputRef.current.value === ""){
+      await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), currEmptyAnswer);
+    }else{
+      await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), currAnswer);
+    }
+    //delete answer from input field
+    setPlayerAnswer("");
+
   }
   
     if(!voting){
         return(
         <div>
             <div className = "InfoLeiste">
-                <h1>{players[playerCounter].playerName} is answering...</h1>
                 <h1>{count}</h1>
                 <h1>{round}/{rounds}</h1>
             </div>
@@ -297,9 +340,15 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
             <div className="game">
+                <h1>{players[playerCounter].playerName}</h1>
                 <h1>{randomQuestion}?</h1>
-                <input type="text" id="meinInputFeld" value={playerAnswer} ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
-                <button onClick={sendAnswer} disabled={!(players[playerCounter].playerID === uid)}>button</button>
+                {myTurn && (
+                <div>
+                    <input type="text" id="meinInputFeld" value={playerAnswer} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
+                  <button onClick={sendAnswer} disabled={!(players[playerCounter].playerID === uid)}>button</button>
+                </div>
+)}
+
             </div>
         </div>
         )}
