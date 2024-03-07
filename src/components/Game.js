@@ -25,7 +25,7 @@ const [tmp, setTmp] = useState(1);
 
 const [correctAnswer, setCorrectAnswer] = useState("");
 const [myTurn, setMyTurn] = useState(false);
-const [playerAnswer, setPlayerAnswer] = useState("");
+const [playerAnswerInput, setPlayerAnswerInput] = useState("");
 const inputRef = useRef(null);
 const [startedAt, setStartedAt] = useState(null);
 const [listenerSet, setListenerSet] = useState(false); // State-Flag hinzugefügt
@@ -97,7 +97,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
             console.log("empfangenen dummy: "+ data.dummy)
                       // aktuellisiere damit nicht zwei mal das selbe in firebase database geschrieben wird und firebase onValueTriggered
 
-            //dummyCounter = data.dummy;
+            dummyCounter = data.dummy;
 
             setAnswerInDB(currentTmp => {
             return currentTmp +1
@@ -136,7 +136,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
         const playerAnswerListener = onValue(playerAnswerRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
-            setPlayerAnswer(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            //setPlayerAnswerInput(data.Answer); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            setPlayerAnswerInput("");
           }
         });
 
@@ -305,7 +306,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), currAnswer);
     }
     //delete answer from input field
-    setPlayerAnswer("");
+    setPlayerAnswerInput("");
 
   }
   
@@ -344,7 +345,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                 <h1>{randomQuestion}?</h1>
                 {myTurn && (
                 <div>
-                    <input type="text" id="meinInputFeld" value={playerAnswer} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswer(e.target.value)}} ></input>
+                    <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
                   <button onClick={sendAnswer} disabled={!(players[playerCounter].playerID === uid)}>button</button>
                 </div>
 )}
