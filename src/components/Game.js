@@ -9,7 +9,8 @@ import { avataaars, lorelei } from '@dicebear/collection';
 import { useMemo } from 'react';
 
 let dummyCounter = 0;
-console.log("dummyCounter wird 0 gesetzt");
+let firstGameInit = true;
+//console.log("dummyCounter wird 0 gesetzt");
 
 
 export const Game = ({isCreator, lives, rounds, time, playerNumber, setPlayerNumber, players, db, roomID}) => {
@@ -68,7 +69,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
     useEffect(() => {
-      console.log("ain usefect anach oder daor?");
+      //console.log("ain usefect anach oder daor?");
       const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -94,7 +95,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
         const data = snapshot.val();
         if (data) {
             // erhöhe um andere useEffect zu triggern
-            console.log("empfangenen dummy: "+ data.dummy)
+            //console.log("empfangenen dummy: "+ data.dummy)
                       // aktuellisiere damit nicht zwei mal das selbe in firebase database geschrieben wird und firebase onValueTriggered
 
             dummyCounter = data.dummy;
@@ -187,13 +188,40 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     }, []);
     
     useEffect(() => {
-      console.log("oleeeeee");
       const gameLoop = async () => {
-        // checkt ob ich dran bin
-        setMyTurn(false);                        
-          if(players[playerCounter].playerID === uid){    
-            setMyTurn(true);                                     
-          }
+      
+
+
+        console.log("firstGameInit1 " + firstGameInit)
+        if(!firstGameInit){
+         
+
+        // manage wer dran ist und runden
+        // das verursacht wahrscheinlich manchmal ein bug falls die timer zeit klein ist weil setPlayerCounter asynchron ist und deswegen nicht schnell genug aktuellisiert bevoir es wieder beim if statement ist. Der Bugg ewnsteht also durch das oberste if statement und lässt sich durch ein weiteres useEffect() verhindern 
+        if(playerNumber <= (playerCounter + 1)){
+         setPlayerCounter(0);
+         if((round+1) > rounds){
+           setVoting(true);
+           return;
+         }else{
+          console.log("RUNDE ERHÖHT")
+
+           setRound(currentRound => {
+             return currentRound + 1
+           });
+       }
+  
+       }else{
+         setPlayerCounter(currentPlayerCounter => {
+         return currentPlayerCounter + 1;
+       });
+       }
+       
+      }
+      firstGameInit = false;
+      console.log("firstGameInit2 " + firstGameInit)
+
+
     
         // sucht fragen raus                    
         if(!isCreator){                 
@@ -202,9 +230,9 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
             await set(ref(db, 'rooms/' + roomID + '/questions/correctAnswer'), tmp.antwort);
         }
 
-        console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
+        //console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
         await timer(time, setCount, startedAt, serverTimeOffset);
-        console.log("send Answer wird im gameLoop aufgerufen")
+        //console.log("send Answer wird im gameLoop aufgerufen")
         sendAnswer();      };
       // serverTimestamp() gibt 2 triggers vom listener mit der lokalen und mit der server Zeit deswegen braucht man das
       if(startedAt !== null){
@@ -222,46 +250,29 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
           }
         }
         else{
-          console.log("der gameloop wird gecalled");
+          //console.log("der gameloop wird gecalled");
           gameLoop();
         }
       }
     }, [startedAt]);
 
- 
+    useEffect(() => {
+              // checkt ob ich dran bin
+              setMyTurn(false);                        
+              if(players[playerCounter].playerID === uid){    
+                setMyTurn(true);                                     
+              }
+    }, [playerCounter]);
+
     useEffect(() => {
     if(answerInDB !== 0){
     const finishRound = async() => {
-      console.log("finish Round wurde aufgerufen")
-      clearInterval(intervalID);
 
 
       setCount(0);
-      
 
-
-      // manage wer dran ist und runden
-      // das verursacht wahrscheinlich manchmal ein bug falls die timer zeit klein ist weil setPlayerCounter asynchron ist und deswegen nicht schnell genug aktuellisiert bevoir es wieder beim if statement ist. Der Bugg ewnsteht also durch das oberste if statement und lässt sich durch ein weiteres use effect verhindern 
-      if(playerNumber <= (playerCounter + 1)){
-       setPlayerCounter(0);
-       if((round+1) > rounds){
-         setVoting(true);
-         return;
-         console.log("Dinosaurier");
-       }else{
-         setRound(currentRound => {
-           return currentRound + 1
-         });
-     }
-
-     }else{
-       setPlayerCounter(currentPlayerCounter => {
-       return currentPlayerCounter + 1;
-     });
-      
-     }
           // starte neuen loop
-
+      clearInterval(intervalID);
       if (!isCreator) {
         // warte 3s bevor nächster spieler dran ist
         await wait(3000);
@@ -270,13 +281,12 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
        }
     };
     
-    console.log(answerInDB);
     finishRound();
   }
   }, [answerInDB]);
 
   const sendAnswer = async() => {
-    console.log("send Answer Funktion wurde aufgerufen");
+    //console.log("send Answer Funktion wurde aufgerufen");
     const personalHistory = {
       Question: randomQuestion, // Passe den Nachrichtentext an
       Answer: inputRef.current.value,
@@ -287,9 +297,9 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
 
     // erhöhe AnswerCounter
-    console.log("DummyCounter pre:" + dummyCounter);
+    //console.log("DummyCounter pre:" + dummyCounter);
     dummyCounter ++;
-    console.log("DummyCounter post:" + dummyCounter);
+    //console.log("DummyCounter post:" + dummyCounter);
 
     const currAnswer = {
       Answer: inputRef.current.value,
