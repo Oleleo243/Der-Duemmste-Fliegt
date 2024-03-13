@@ -24,6 +24,9 @@ const [playerIsPlaying, setPlayerIsPlaying] = useState(1);
 const [randomQuestion, setRandomQuestion] = useState("");
 const [tmp, setTmp] = useState(1);
 
+const [showLastAnswer, setShowLastAnswer] = useState(false);
+const [lastAnswer, setLastAnswer] = useState("");
+
 const [correctAnswer, setCorrectAnswer] = useState("");
 const [myTurn, setMyTurn] = useState(false);
 const [playerAnswerInput, setPlayerAnswerInput] = useState("");
@@ -94,6 +97,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       const AnswerInDBListener = onValue(AnswerInDBRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
+        
+
             // erhöhe um andere useEffect zu triggern
             //console.log("empfangenen dummy: "+ data.dummy)
                       // aktuellisiere damit nicht zwei mal das selbe in firebase database geschrieben wird und firebase onValueTriggered
@@ -103,6 +108,9 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
             setAnswerInDB(currentTmp => {
             return currentTmp +1
           });
+          setLastAnswer(data.Answer);
+          setShowLastAnswer(true);
+
           
           
         }
@@ -133,14 +141,6 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
           }
         });
 
-        const playerAnswerRef = ref(db, 'rooms/' + roomID + '/questions/playerAnswer'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const playerAnswerListener = onValue(playerAnswerRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            //setPlayerAnswerInput(data.Answer); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-            setPlayerAnswerInput("");
-          }
-        });
 
         // einfach jedes mal started ad aktuellisieren oder started ad -30
        // const gameLoop = async () => {
@@ -194,7 +194,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
         console.log("firstGameInit1 " + firstGameInit)
         if(!firstGameInit){
-         
+          setShowLastAnswer(false);
+
 
         // manage wer dran ist und runden
         // das verursacht wahrscheinlich manchmal ein bug falls die timer zeit klein ist weil setPlayerCounter asynchron ist und deswegen nicht schnell genug aktuellisiert bevoir es wieder beim if statement ist. Der Bugg ewnsteht also durch das oberste if statement und lässt sich durch ein weiteres useEffect() verhindern 
@@ -273,6 +274,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
           // starte neuen loop
       clearInterval(intervalID);
+
       if (!isCreator) {
         // warte 3s bevor nächster spieler dran ist
         await wait(3000);
@@ -286,12 +288,14 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
   }, [answerInDB]);
 
   const sendAnswer = async() => {
+    // später wird sich drum gekümmert wer dran ist nur hier erstmal sicherstellen das man nciht zweimal den button drücken kann
+    let tmpAnswer = inputRef.current.value;
+    setMyTurn(false);                        
     //console.log("send Answer Funktion wurde aufgerufen");
     const personalHistory = {
       Question: randomQuestion, // Passe den Nachrichtentext an
-      Answer: inputRef.current.value,
+      Answer: tmpAnswer,
     };
-    //delete answer from input field
 
     // send to database
     await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
@@ -302,7 +306,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     //console.log("DummyCounter post:" + dummyCounter);
 
     const currAnswer = {
-      Answer: inputRef.current.value,
+      Answer: tmpAnswer,
       dummy: dummyCounter, 
     };
 
@@ -310,7 +314,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       Answer: "nothing",
       dummy: dummyCounter, 
     };
-    if(inputRef.current.value === null || inputRef.current.value === ""){
+    if(tmpAnswer === null || tmpAnswer === ""){
       await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), currEmptyAnswer);
     }else{
       await set(ref(db, 'rooms/' + roomID + '/questions/playerAnswer'), currAnswer);
@@ -356,9 +360,13 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                 {myTurn && (
                 <div>
                     <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
-                  <button onClick={sendAnswer} disabled={!(players[playerCounter].playerID === uid)}>button</button>
+                  <button onClick={sendAnswer} disabled={!myTurn}>button</button>
                 </div>
+                )}
+                {showLastAnswer && (
+  <h1>{lastAnswer}</h1>
 )}
+
 
             </div>
         </div>
