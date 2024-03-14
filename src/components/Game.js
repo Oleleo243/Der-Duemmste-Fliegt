@@ -6,7 +6,10 @@ import { onValue,  getDatabase, onChildChanged, ref, set, push, hasChild, exists
 import { Voting } from "./Voting";
 import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
+import { AnimatedPlayerName } from "./sections/AnimatedPlayerName";
+
 import { useMemo } from 'react';
+
 
 let dummyCounter = 0;
 let firstGameInit = true;
@@ -355,6 +358,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
             <div className="game">
+                <AnimatedPlayerName playerName = {players[playerCounter].playerName}/>
                 <h1>{players[playerCounter].playerName}</h1>
                 <h1>{randomQuestion}?</h1>
                 {myTurn && (
