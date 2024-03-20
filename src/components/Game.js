@@ -7,6 +7,7 @@ import { Voting } from "./Voting";
 import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
 import { AnimatedPlayerName } from "./sections/AnimatedPlayerName";
+import { motion } from "framer-motion";
 
 import { useMemo } from 'react';
 
@@ -75,7 +76,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
     useEffect(() => {
-      //console.log("ain usefect anach oder daor?");
+      console.log("Seite Wird gerendert");
       const timeOffListener = onValue( ref(db, ".info/serverTimeOffset"), (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -364,7 +365,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                 {myTurn && (
                 <div>
                     <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
-                  <button onClick={sendAnswer} disabled={!myTurn}>button</button>
+                  <motion.button whileHover={{ scale: 1.1}} whileTP = {{ scale: 0.9 }} onClick={sendAnswer} disabled={!myTurn}>button</motion.button>
                 </div>
                 )}
                 {showLastAnswer && (
