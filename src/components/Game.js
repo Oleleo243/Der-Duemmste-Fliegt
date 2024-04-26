@@ -133,6 +133,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
         const questionListener = onValue(questionRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
+            setRandomQuestion("");  // damit im neuen nicht kurz noch die alte frage steht 
+            wait(3000);
             setRandomQuestion(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
           }
         });
@@ -210,7 +212,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
            return;
          }else{
           console.log("RUNDE ERHÖHT")
-
+            
            setRound(currentRound => {
              return currentRound + 1
            });
