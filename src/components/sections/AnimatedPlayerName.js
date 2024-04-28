@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+
 
 export const AnimatedPlayerName = ({ playerName }) => {
-  const [animationTrigger, setAnimationTrigger] = useState(false);
-
-
-  return (
-    <h1 >{playerName}</h1>
-  );
-};
-
+  return <h1>{playerName}</h1>;
+}

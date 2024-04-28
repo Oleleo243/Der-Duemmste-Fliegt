@@ -7,6 +7,8 @@ import { Voting } from "./Voting";
 import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
 import { AnimatedPlayerName } from "./sections/AnimatedPlayerName";
+import { RandomQuestion } from "./sections/RandomQuestion";
+
 import { motion } from "framer-motion";
 
 import { useMemo } from 'react';
@@ -133,9 +135,13 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
         const questionListener = onValue(questionRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
-            setRandomQuestion("");  // damit im neuen nicht kurz noch die alte frage steht 
-            wait(3000);
-            setRandomQuestion(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            const helperFunction1 = async () => {
+              setRandomQuestion("");  // damit im neuen nicht kurz noch die alte frage steht 
+              await wait(1000);
+              setRandomQuestion(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+            }
+            helperFunction1();
+            
           }
         });
 
@@ -363,7 +369,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
             <div className="game">
                 <AnimatedPlayerName playerName = {players[playerCounter].playerName}/>
                 <h1>{players[playerCounter].playerName}</h1>
-                <h1>{randomQuestion}?</h1>
+                <RandomQuestion question={randomQuestion} />
                 {myTurn && (
                 <div>
                     <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
