@@ -8,6 +8,8 @@ import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
 import { AnimatedPlayerName } from "./sections/AnimatedPlayerName";
 import { RandomQuestion } from "./sections/RandomQuestion";
+import { LastAnswer } from "./sections/LastAnswer";
+
 
 import { motion } from "framer-motion";
 
@@ -377,7 +379,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                 </div>
                 )}
                 {showLastAnswer && (
-  <h1>{lastAnswer}</h1>
+  <LastAnswer text={lastAnswer} />
 )}
 
 
