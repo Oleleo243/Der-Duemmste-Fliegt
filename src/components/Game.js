@@ -290,8 +290,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       clearInterval(intervalID);
 
       if (!isCreator) {
-        // warte 3s bevor nächster spieler dran ist
-        await wait(3000);
+        // warte 5s bevor nächster spieler dran ist
+        await wait(5000);
         
         await set(ref(db, 'rooms/' + roomID + '/status/startAt'), serverTimestamp());
        }
