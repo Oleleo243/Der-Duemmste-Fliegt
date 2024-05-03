@@ -6,7 +6,6 @@ import { onValue,  getDatabase, onChildChanged, ref, set, push, hasChild, exists
 import { Voting } from "./Voting";
 import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
-import { AnimatedPlayerName } from "./sections/AnimatedPlayerName";
 import { RandomQuestion } from "./sections/RandomQuestion";
 import { LastAnswer } from "./sections/LastAnswer";
 
@@ -43,6 +42,7 @@ const [startedAt, setStartedAt] = useState(null);
 const [listenerSet, setListenerSet] = useState(false); // State-Flag hinzugefügt
 let serverTimeOffset = 0;
 const [playerCounter, setPlayerCounter] = useState(0);
+const [playerName, setPlayerName] = useState("");
 const [intervalID, setIntervalID] = useState(0);
 
 //const [startedAt, setStartedAt] = useState(0);
@@ -277,6 +277,8 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
               if(players[playerCounter].playerID === uid){    
                 setMyTurn(true);                                     
               }
+              // aktuelisiere Spieler der dran sit
+              setPlayerName(players[playerCounter].playerName);
     }, [playerCounter]);
 
     useEffect(() => {
@@ -369,8 +371,15 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
 
 
             <div className="game">
-                <AnimatedPlayerName playerName = {players[playerCounter].playerName}/>
-                <h1>{players[playerCounter].playerName}</h1>
+                <motion.h1
+                  key={playerName}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, type: "spring", stiffness: 300 }}
+                  whileHover={{ scale: 1.1, color: "#ff5722" }}
+                >
+                  {playerName}
+              </motion.h1>
                 <RandomQuestion question={randomQuestion} />
                 {myTurn && (
                 <div>
