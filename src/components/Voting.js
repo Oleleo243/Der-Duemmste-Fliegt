@@ -4,15 +4,53 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useState, useRef, useEffect, useContext } from "react";
+import { LastAnswer } from "./sections/LastAnswer";
+import { avataaars, lorelei } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
+import { useMemo } from 'react';
+import {db, auth, uid} from '../firebase-config.js';
+import { onValue,  getDatabase, onChildChanged, ref, set, push, hasChild, exists,get,  serverTimestamp} from "firebase/database";
+import { HoverHistory } from "./sections/HoverHistory.js";
+
 import '../styles/Voting.css';
 
 
 
-export const Voting = ({players}) => {
+export const Voting = ({players, votingNumber, roomID}) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [votingData, setVotingData] = useState(null);
+
+  const avatars = useMemo(() => {
+    return players.map(player => createAvatar(avataaars, {
+      size: 50,
+      seed: player.playerName,
+    }).toDataUriSync());
+  }, [players]);
+
 
   useEffect(() => {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa")
+    async function fetchVotingData() {
+      try {
+        const votingRef = ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber);
+        const snapshot = await get(votingRef);
+        
+        if (snapshot.exists()) {
+          const votingData = snapshot.val();
+          setVotingData(votingData);
+        } else {
+          console.log("Keine Daten für das angegebene Voting gefunden.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Lesen des Votings:", error);
+      }
+    }
+
+    fetchVotingData();
   }, []);
+
+  useEffect(() => {
+    console.log(votingData);
+  }, [votingData]);
 
   
   const initialPlayers = [
@@ -35,15 +73,25 @@ export const Voting = ({players}) => {
   };
   return (
     <div>
-    <h1>Wähle einen Spieler zum Voten:</h1>
-    {players.map((player) => (
-      <div key={player.id}>
-        <button onClick={() => handleVote(player)} disabled={selectedPlayer !== null}>
-          {player.playerName}
-        </button>
-      </div>
-    ))}
-  </div>
+      {players.map((player, index) => (
+        <div key={index} onMouseEnter={() => setHoveredIndex(index)} onMouseLeave={() => setHoveredIndex(null)}>
+          <button>
+            {player.playerName}
+            <br />
+            {player.lives} Leben
+            <img src={avatars[index]} alt="Avatar" />
+          </button>
+          {hoveredIndex === index && (
+            <div className="hovered-text">
+              {/* player.playerID */ }
+               {/*votingData && votingData[player.playerID].question1.Answer*/} 
+              {votingData && <HoverHistory data = {votingData[player.playerID]}/>} 
 
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   );
+  
 }

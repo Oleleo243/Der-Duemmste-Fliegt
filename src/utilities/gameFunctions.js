@@ -8,12 +8,19 @@ export const initGame = async (roomID, newLives, players, db) => {
 }
 
 // Funktion, um eine zufällige Frage und die dazugehörige Antwort auszuwählen
-export const getRandomQuestion = () => {
+export const getRandomQuestion = (currQuestion) => {
   const fragen = FragenData.fragen;
-  const zufaelligeIndex = Math.floor(Math.random() * 10);
-  const zufaelligeFrage = fragen[zufaelligeIndex];
+  let zufaelligeFrage = currQuestion;
+
+  // Wähle eine zufällige Frage, die nicht der aktuellen Frage entspricht
+  do {
+    const zufaelligeIndex = Math.floor(Math.random() * fragen.length);
+    zufaelligeFrage = fragen[zufaelligeIndex];
+  } while (zufaelligeFrage === currQuestion);
+
   return zufaelligeFrage;
-}
+};
+
 
 
 /*

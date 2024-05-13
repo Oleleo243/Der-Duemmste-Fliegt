@@ -8,8 +8,6 @@ import { createAvatar } from '@dicebear/core';
 import { avataaars, lorelei } from '@dicebear/collection';
 import { RandomQuestion } from "./sections/RandomQuestion";
 import { LastAnswer } from "./sections/LastAnswer";
-
-
 import { motion } from "framer-motion";
 
 import { useMemo } from 'react';
@@ -240,7 +238,7 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
     
         // sucht fragen raus                    
         if(!isCreator){                 
-            const tmp= getRandomQuestion();
+            const tmp= getRandomQuestion(randomQuestion);
             await set(ref(db, 'rooms/' + roomID + '/questions/question'), tmp.frage);
             await set(ref(db, 'rooms/' + roomID + '/questions/correctAnswer'), tmp.antwort);
         }
@@ -313,8 +311,19 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
       Answer: tmpAnswer,
     };
 
-    // send to database
-    await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
+    // history für voting hover
+    const emptyPersonalHistory = {
+      Question: randomQuestion, // Passe den Nachrichtentext an
+      Answer: "nothing",
+    };
+
+    if(tmpAnswer === null || tmpAnswer === ""){
+          await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), emptyPersonalHistory);
+    }else{
+      await set(ref(db, 'rooms/' + roomID + '/history/Voting' + votingNumber + '/' + uid + '/question' + round), personalHistory);
+    }
+
+  
 
     // erhöhe AnswerCounter
     //console.log("DummyCounter pre:" + dummyCounter);
@@ -363,41 +372,40 @@ const timer = (time, setCount, startAt, serverTimeOffset) => {
                     <br />
                     {player.lives} Leben
                     <img src={avatars[index]} alt="Avatar" />
-
                     </h2>
                 </div>
                 ))}
             </div>
 
 
-            <div className="game">
-                <motion.h1
-                  key={playerName}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, type: "spring", stiffness: 300 }}
-                  whileHover={{ scale: 1.1, color: "#ff5722" }}
-                >
-                  {playerName}
-              </motion.h1>
-                <RandomQuestion question={randomQuestion} />
-                {myTurn && (
-                <div>
-                    <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
-                  <motion.button whileHover={{ scale: 1.1}} whileTP = {{ scale: 0.9 }} onClick={sendAnswer} disabled={!myTurn}>button</motion.button>
-                </div>
-                )}
-                {showLastAnswer && (
-  <LastAnswer text={lastAnswer} />
-)}
+              <div className="game">
+                  <motion.h1
+                    key={playerName}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, type: "spring", stiffness: 300 }}
+                    //whileHover={{ scale: 1.1, color: "#ff5722" }}
+                  >
+                    {playerName}
+                </motion.h1>
+                  <RandomQuestion question={randomQuestion} />
+                  {myTurn && (
+                  <div>
+                      <input type="text" id="meinInputFeld" value={playerAnswerInput} placeholder="schreib!" ref={inputRef} onChange={(e) => {setPlayerAnswerInput(e.target.value)}} ></input>
+                    <motion.button whileHover={{ scale: 1.1}} whileTP = {{ scale: 0.9 }} onClick={sendAnswer} disabled={!myTurn}>button</motion.button>
+                  </div>
+                  )}
+                  {showLastAnswer && (
+                    <><LastAnswer text={lastAnswer} /><h1>{correctAnswer}</h1></>
+                  )}
 
 
-            </div>
-        </div>
-        )}
+              </div>
+          </div>
+          )}
     if(voting){
       return(
-        <div><Voting players={players}/></div>
+        <div><Voting players={players} votingNumber = {votingNumber} roomID = {roomID}/></div>
       );
     }
     
