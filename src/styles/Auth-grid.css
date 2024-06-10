@@ -1,0 +1,28 @@
+.auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr 1fr;
+    grid-template-rows: repeat(7, 1fr);
+    justify-items: center;
+    align-items: center;
+   
+}
+
+.auth-heading{
+    grid-row: 2/4;
+    grid-column: 3/6;
+}
+
+.auth-input{
+    grid-row: 4/5;
+    grid-column: 4/5;
+}
+
+.auth-error{
+    grid-row: 4/5;
+    grid-column: 4/5;
+}
+
+.auth-button{
+    grid-row: 5/6;
+    grid-column: 4/5;
+}

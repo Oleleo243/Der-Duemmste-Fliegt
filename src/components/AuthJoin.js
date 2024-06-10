@@ -1,6 +1,8 @@
 
-import { signInAnonymously, updateProfile } from "firebase/auth";
+import { signInAnonymously,signOut, updateProfile } from "firebase/auth";
 import '../styles/Auth.css';
+import '../styles/Auth-grid.css';
+
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -15,6 +17,8 @@ import { useState, useRef, useEffect, useContext } from "react";
 import {AppContext} from "../App"
 
 export const AuthJoin = (props) => {
+  const maxPlayerNumber = 12;
+
   const {shouldJoin, setShouldJoin} = useContext(AppContext);
   const schema = yup.object().shape({
     name: yup.string().required("Please write a Nickname"),
@@ -36,14 +40,17 @@ export const AuthJoin = (props) => {
     // Überprüfe, ob der Benutzer bereits im Raum ist
     const playersRef = ref(db, `rooms/${props.roomID}/players`);
     const playersSnapshot = await get(playersRef);
+
+    
     if (playersSnapshot.hasChild(uid)) {
       alert("Already in room");
       throw new Error("Already in room");
     }
+    
 
     // Überprüfe, ob die maximale Anzahl von Spielern erreicht ist
     const roomData = roomSnapshot.val();
-    if (roomData.status.playerNumber >= roomData.settings.maxPlayerNumber) {
+    if (roomData.status.playerNumber >= maxPlayerNumber) {
       alert("Max player limit reached");
       throw new Error("Max player limit reached");
     }
@@ -70,8 +77,14 @@ export const AuthJoin = (props) => {
     setShouldJoin(false);
   }
 
+  
   const signIn = async (data) => {
-    const result = await signInAnonymously(auth);
+    try {
+      const result = await signInAnonymously(auth);
+      console.log('Signed in anonymously with UID:', result.user.uid);
+    } catch (error) {
+      console.error('Error signing in anonymously:', error);
+    }
     try {
       await updateProfile(auth.currentUser, {
         displayName: data.name
@@ -88,9 +101,9 @@ export const AuthJoin = (props) => {
   return (
     <form className="auth" onSubmit={handleSubmit(signIn)}>
       <h1 className="auth-heading">DER DÜMMSTE FLIEGT! 😜🤪</h1> 
-      <input maxLength="20" placeholder="type name..." {...register("name")} />
-      <p>{errors.name?.message}</p>
-      <button type="submit"> play</button>
+      <input className="auth-input"maxLength="12" placeholder="type name..." {...register("name")} />
+      <p className="auth-error">{errors.name?.message}</p>
+      <button className="auth-button" type="submit">join</button>
     </form>
   );
 }

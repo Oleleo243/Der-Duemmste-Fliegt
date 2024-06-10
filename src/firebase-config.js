@@ -22,22 +22,19 @@ const firebaseConfig = {
 
 };
 
-// Initialize Firebase test test spinat
-const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
+// Initialize Firebase with a unique name for each tab
+// is neccecary to avoid same uid in tabs in the same browser
+const appName = `app-${Math.random().toString(36).substring(7)}`;
+const app = initializeApp(firebaseConfig, appName);
 export const auth = getAuth(app);
 
 export let uid = null;
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // console.log("scheiße warum geht da nicht")
     uid = user.uid;
-  } else {
+    console.log("Current UID:", uid);
   }
 });
+
 export const provider = new GoogleAuthProvider();
-    // console.log("komm schon bitte")
-
-//export const db = getFirestore(app);
 export const db = getDatabase(app);
-

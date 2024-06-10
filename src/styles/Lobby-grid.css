@@ -1,0 +1,27 @@
+.lobby-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr 4fr 3fr 1fr 2fr;
+    justify-items: center;
+    align-items: center;
+   
+}
+.Lobby-playernumber{
+    grid-row: 3/4;
+    grid-column: 2/3;
+  }
+  
+.Lobby-player-list{
+    grid-row: 3/4;
+    grid-column: 2/3;
+}
+
+.Lobby-settings-box{
+    grid-row: 2/3;
+    grid-column: 2/3;
+}
+
+.Lobby-invitation-link{
+    grid-row: 4/5;
+    grid-column: 2/3;
+}

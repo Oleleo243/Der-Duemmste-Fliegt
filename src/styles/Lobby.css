@@ -1,110 +1,49 @@
-/* Lobby CSS */
+body, html {
+  margin: 0;
+}
+
+.lobby-start-button{
+  width: 300px;
+  height: 30px
+}
+
+
 .lobby-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin-top: 0;
-  }
+  height: 100vh; /* volle Höhe des Viewports */
+  width: 100vw; /* volle Breite des Viewports */
+}
+.Lobby-player {
+  display: flex;
+  border: 1px solid grey;
+  width: 170px;
+  height: 60px;
   
-  .lobby-box {
-    padding: 20px;
-    background-color: #f2f2f2;
-    border-radius: 8px;
-    text-align: center;
-    width: 400px;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: -250px;
-    margin-bottom: 30;
-  }
-  
-  .form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .lobby-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  label {
-    margin-bottom: 10px;
-  }
-  
-  select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-  }
-  
-  .lobby-start-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .Players {
-    margin-top: 0px; /* Geändert von 20px auf 10px */
-    width: 200px;
-  }
-  
-  h2 {
-    font-size: 18px;
-  }
-  
-  h3 {
-    font-size: 16px;
-  }
-  
-  p {
-    margin-top: 20px;
-    font-size: 14px;
-  }
-  
-  .invite-link-container {
-    margin-top: 10px; /* Geändert von 20px auf 10px */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 2px solid #292727;
-  }
-  
-  .invite-link {
-    margin-top: 10px;
-    padding: 8px;
-    background-color: #f2f2f2;
-    border: 1px solid #000;
-    border-radius: 4px;
-    font-size: 14px;
-    text-align: center;
-    word-break: break-all;
-    max-width: 300px;
-    border: 2px solid #292727;
-  }
-  
-  .settings-container {
-    margin-top: 20px; /* Hinzugefügt: Abstand zwischen Spielerliste und Einstellungen vergrößern */
-  }
-  
-  .copy-button {
-    margin-top: 10px; /* Hinzugefügt: Abstand zwischen Einladungslink und Copy-Button */
-  }
-  
+}
+
+.Lobby-player-name{
+  font-size:smaller;
+  width: 120px;
+
+}
+
+.Lobby-playernumber{
+  position: relative;
+  bottom: 107px;
+  left: 355px;
+  margin: 0px;
+  text-align: right;
+  font-size: smaller
+}
+
+.Lobby-player-list{
+  display: grid;
+  gap: 0.5rem;
+  padding: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
+
+  border: 1px solid grey;
+  width: 710px;
+
+  height: 200px
+}

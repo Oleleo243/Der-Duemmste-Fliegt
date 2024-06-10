@@ -1,244 +1,274 @@
-import {db, auth, uid,} from '../firebase-config.js';
-import { onValue,  getDatabase, ref, set, push, hasChild, exists,get, serverTimestamp } from "firebase/database";
+import { db, auth, uid } from "../firebase-config.js";
+import {
+  onValue,
+  getDatabase,
+  ref,
+  set,
+  push,
+  hasChild,
+  exists,
+  get,
+  serverTimestamp,
+} from "firebase/database";
 import { AuthJoin } from "./AuthJoin";
 
 import { Game } from "./Game";
 import { useState, useRef, useEffect, useContext } from "react";
-import {AppContext} from "../App"
-import '../styles/Lobby.css';
-import { timer} from '../utilities/gameFunctions'
-import { createAvatar } from '@dicebear/core';
-import { avataaars, lorelei } from '@dicebear/collection';
-import { useMemo } from 'react';
+import { AppContext } from "../App";
+import "../styles/Lobby.css";
+import "../styles/Lobby-grid.css";
 
+import { timer } from "../utilities/gameFunctions";
+import { createAvatar } from "@dicebear/core";
+import { avataaars, lorelei } from "@dicebear/collection";
+import { useMemo } from "react";
 
 export const Lobby = () => {
+  const [lives, setLives] = useState(3);
+  const [rounds, setRounds] = useState(4);
+  const [time, setTime] = useState(30);
+  const [playerNumber, setPlayerNumber] = useState(0);
+  const { shouldJoin, setShouldJoin } = useContext(AppContext);
+  const [players, setPlayers] = useState([]);
+  const [isAuth, setIsAuth] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
+  const url = window.location.pathname;
+  const parts = url.split("/");
+  const roomID = parts[2];
+  const [count, setCount] = useState(6.0);
+  const [startedAt, setStartedAt] = useState(null);
+  let timeLeft = 3;
 
- 
-
-    
-    const [lives, setLives] = useState(3);
-    const [rounds, setRounds] = useState(4);
-    const [time, setTime] = useState(30);
-    const [playerNumber, setPlayerNumber] = useState(0);
-    const {shouldJoin, setShouldJoin} = useContext(AppContext);
-    const [players, setPlayers] = useState([]);
-    const [isAuth, setIsAuth] = useState(false);
-    const [hasStarted, setHasStarted] = useState(false);
-    const [isCreator, setIsCreator] = useState(false);
-    const url = window.location.pathname;
-    const parts = url.split('/');
-    const roomID = parts[2];
-    const [count, setCount] = useState(6.0);
-    const [startedAt, setStartedAt] = useState(null);
-    let timeLeft = 3;
-    
-
-
-
-    
-
-    useEffect(() => {
-      //console.log(count);
-      //console.log(shouldJoin);
-        // join Prozess
-        if(shouldJoin){
-          setIsCreator(true);
-              // console.log("jetzt aber ich will schlafen")
-
-        }
-        const playersRef = ref(db, 'rooms/' + roomID + '/players');
-        const playersListener = onValue(playersRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            const playersArray = Object.entries(data).map(([playerID, playerData]) => {
-              return { playerID: playerID, ...playerData };
-            });
-            setPlayers(playersArray);
-            setPlayerNumber(playersArray.length);
+  useEffect(() => {
+    //console.log(count);
+    //console.log(shouldJoin);
+    // join Prozess
+    if (shouldJoin) {
+      setIsCreator(true);
+      // console.log("jetzt aber ich will schlafen")
+    }
+    const playersRef = ref(db, "rooms/" + roomID + "/players");
+    const playersListener = onValue(playersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const playersArray = Object.entries(data).map(
+          ([playerID, playerData]) => {
+            return { playerID: playerID, ...playerData };
           }
-        });
+        );
+        setPlayers(playersArray);
+        setPlayerNumber(playersArray.length);
+      }
+    });
 
-        // sync game Settings
-        const livesRef = ref(db, 'rooms/' + roomID + '/settings/lives'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const livesListener = onValue(livesRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setLives(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-          }
-        });
-        const roundsRef = ref(db, 'rooms/' + roomID + '/settings/rounds'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const roundsListener = onValue(roundsRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setRounds(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-          }
-        });
-        const timeRef = ref(db, 'rooms/' + roomID + '/settings/time'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const timeListener = onValue(timeRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-          }
-        });
-        const hasStartedRef = ref(db, 'rooms/' + roomID + '/status/hasStarted'); // Pfad zum ausgewählten Feld in der Realtime Database
-        const hasStartedListener = onValue(hasStartedRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setHasStarted(true); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
-          }
-        });
-        
+    // sync game Settings
+    const livesRef = ref(db, "rooms/" + roomID + "/settings/lives"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const livesListener = onValue(livesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setLives(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+      }
+    });
+    const roundsRef = ref(db, "rooms/" + roomID + "/settings/rounds"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const roundsListener = onValue(roundsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setRounds(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+      }
+    });
+    const timeRef = ref(db, "rooms/" + roomID + "/settings/time"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const timeListener = onValue(timeRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+      }
+    });
+    const hasStartedRef = ref(db, "rooms/" + roomID + "/status/hasStarted"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const hasStartedListener = onValue(hasStartedRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setHasStarted(true); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+      }
+    });
+  }, []);
 
-      }, []);
-      
-       // erstelle avatare
+  // erstelle avatare
   // https://www.dicebear.com/styles/avataaars/
   const avatars = useMemo(() => {
-    return players.map(player => createAvatar(avataaars, {
-      size: 128,
-      seed: player.playerName,
-    }).toDataUriSync());
+    return players.map((player) =>
+      createAvatar(avataaars, {
+        size: 50,
+        seed: player.playerName,
+      }).toDataUriSync()
+    );
   }, [players]);
 
+  useEffect(() => {
+    if(playerNumber > 1){
+      set(ref(db, "rooms/" + roomID + "/status/playerNumber"), playerNumber);
+    }
+  }, [playerNumber]);
 
-    // bei release das davor packen https://
-    const copyToClipboard = () => {
-        const copyText = `https://${window.location.hostname}/room/${roomID}`;
-        navigator.clipboard.writeText(copyText);
-      };
+  // bei release das davor packen https://
+  const copyToClipboard = () => {
+    const copyText = `https://${window.location.hostname}/room/${roomID}`;
+    navigator.clipboard.writeText(copyText);
+  };
 
-      const handleLivesChange = (e) => {
-        set(ref(db, 'rooms/' + roomID + '/settings/lives'), e.target.value);
-        setLives(e.target.value);
-      };
+  const handleLivesChange = (e) => {
+    set(ref(db, "rooms/" + roomID + "/settings/lives"), e.target.value);
+    setLives(e.target.value);
+  };
 
-      const handleRoundsChange = (e) => {
-        set(ref(db, 'rooms/' + roomID + '/settings/rounds'), e.target.value);
-        setRounds(e.target.value);
-      };
+  const handleRoundsChange = (e) => {
+    set(ref(db, "rooms/" + roomID + "/settings/rounds"), e.target.value);
+    setRounds(e.target.value);
+  };
 
-      const handleTimeChange = (e) => {
-        set(ref(db, 'rooms/' + roomID + '/settings/time'), e.target.value);
-        setTime(e.target.value);
-      };
+  const handleTimeChange = (e) => {
+    set(ref(db, "rooms/" + roomID + "/settings/time"), e.target.value);
+    setTime(e.target.value);
+  };
 
-      const handleGameStart = (e) => {
-        set(ref(db, 'rooms/' + roomID + '/status/hasStarted'), true);
-      };
-      
-      // mit uid anstat isAuth ist eigentlic besser 
-      if(  (shouldJoin)){
-        return (
-          <div>
-            <AuthJoin roomID={roomID} setIsAuth = {setIsAuth}/>
-          </div>
-        );
-      }
-   
+  const handleGameStart = (e) => {
+    set(ref(db, "rooms/" + roomID + "/status/hasStarted"), true);
+  };
 
-      if (!shouldJoin && (hasStarted === false)) {
-        return (
-          <div className="lobby-container" >
-            <div className="lobby-box">
-            <h1 className="lobby-title" >Game Settings</h1>
-              {count < 4 && <h1>{count}</h1>}            <form id="gameSettingsForm">
-              <label>Lives:</label>
-              <select
-                id="livesInput"
-                name="lives"
-                required
-                disabled={isCreator}
-                value={lives}
-                onChange={handleLivesChange}
-              >
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-              <br />
-              <label>Rounds until Voting:</label>
-              <select
-                id="roundsInput"
-                name="rounds"
-                required
-                disabled={isCreator}
-                value={rounds}
-                onChange={handleRoundsChange}
-              >
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-              <br />
-              <label>Time per Question:</label>
-              <select
-                id="timePerQuestionInput"
-                name="timePerQuestion"
-                required
-                disabled={isCreator}
-                value={time}
-                onChange={handleTimeChange}
-              >
-                <option value="5">5s</option>
-                <option value="10">10s</option>
-                <option value="20">20s</option>
-                <option value="30">30s</option>
-                <option value="40">40s</option>
-                <option value="50">50s</option>
-                <option value="60">60s</option>
-                <option value="90">90s</option>
-                <option value="120">120s</option>
-                <option value="150">150s</option>
-                <option value="180">180s</option>
-              </select>
-              <br />
-            </form>
-            <button className="lobby-start-button" onClick={handleGameStart} disabled={isCreator}> Start </button>
+  // mit uid anstat isAuth ist eigentlic besser
+  if (shouldJoin) {
+    return (
+      <div>
+        <AuthJoin roomID={roomID} setIsAuth={setIsAuth} />
+      </div>
+    );
+  }
 
-            </div>
+  if (!shouldJoin && hasStarted === false) {
+    return (
+      <div className="lobby-container">
+        <div className="Lobby-settings-box">
+          <h1 className="lobby-title">Game Settings</h1>
+          {count < 4 && <h1>{count}</h1>}{" "}
+          <form id="gameSettingsForm">
+            <label>Lives:</label>
+            <select
+              id="livesInput"
+              name="lives"
+              required
+              disabled={isCreator}
+              value={lives}
+              onChange={handleLivesChange}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+            <br />
+            <label>Rounds until Voting:</label>
+            <select
+              id="roundsInput"
+              name="rounds"
+              required
+              disabled={isCreator}
+              value={rounds}
+              onChange={handleRoundsChange}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+            <br />
+            <label>Time per Question:</label>
+            <select
+              id="timePerQuestionInput"
+              name="timePerQuestion"
+              required
+              disabled={isCreator}
+              value={time}
+              onChange={handleTimeChange}
+            >
+              <option value="5">5s</option>
+              <option value="10">10s</option>
+              <option value="20">20s</option>
+              <option value="30">30s</option>
+              <option value="40">40s</option>
+              <option value="50">50s</option>
+              <option value="60">60s</option>
+              <option value="90">90s</option>
+              <option value="120">120s</option>
+              <option value="150">150s</option>
+              <option value="180">180s</option>
+            </select>
+            <br />
+          </form>
+          <button
+            className="lobby-start-button"
+            onClick={handleGameStart}
+            disabled={isCreator}
+          >
+            
+            Start
+          </button>
+        </div>
+        <p className="Lobby-playernumber">{playerNumber}/12</p>
 
-            <div className="Players">
-            <h2>{playerNumber}/12</h2>
-            <h2>Spielerliste:</h2>
+        <div className="Lobby-player-list">
 
-
-            {players.map((player, index) => (
-             <div key={player.playerName}>
-              <h3>{player.playerName}</h3>
+          {players.map((player, index) => (
+            <div className="Lobby-player"key={player.playerName}>
+              {player.playerID === uid ? (
+                  <h3 className="Lobby-player-name" style={{ backgroundColor: "yellow" }}>
+                    {player.playerName} 
+                  </h3>
+                ) : (
+                  <h3 className="Lobby-player-name">{player.playerName}</h3>
+                )}
               <img src={avatars[index]} alt="Avatar" />
-
             </div>
           ))}
-
-            </div>
-            <div>
-            <p>Einaldungslink: https://{window.location.hostname}:3000/room/{roomID}</p>
-            <button onClick={copyToClipboard}>Link kopieren</button>
-            </div>
-          </div>
-        );
-        
-      }
-      if ((!shouldJoin) && (hasStarted === true)) {
-        //console.log("startedAt2: " + startedAt);
-       // console.log("lives: " + lives);
-        return( <div><Game isCreator={isCreator} lives={lives} rounds={rounds} time={time} db={db}playerNumber={playerNumber} roomID={roomID}setSlayerNumber={setPlayerNumber} players={players}/></div>)
-      }
-      
-        }
-
+        </div>
+        <div className="Lobby-invitation-link">
+          <p>
+            Einaldungslink: https://{window.location.hostname}:3000/room/
+            {roomID}
+          </p>
+          <button onClick={copyToClipboard}>Link kopieren</button>
+        </div>
+      </div>
+    );
+  }
+  if (!shouldJoin && hasStarted === true) {
+    //console.log("startedAt2: " + startedAt);
+    // console.log("lives: " + lives);
+    return (
+      <div>
+        <Game
+          isCreator={isCreator}
+          lives={lives}
+          rounds={rounds}
+          time={time}
+          db={db}
+          playerNumber={playerNumber}
+          roomID={roomID}
+          setSlayerNumber={setPlayerNumber}
+          players={players}
+        />
+      </div>
+    );
+  }
+};
