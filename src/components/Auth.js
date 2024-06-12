@@ -29,6 +29,8 @@ import { getRandomBoolean } from "../utilities/helperFunctions.js";
 export const Home = () => {
   const { shouldJoin, setShouldJoin } = useContext(AppContext);
   const [isAuth, setIsAuth] = useState(false);
+  const [errorMessage, setIsErrorMessage] = useState(false);
+
   const [roomID, setRoomID] = useState(null);
   const roomInputRef = useRef(null);
   let navigate = useNavigate();

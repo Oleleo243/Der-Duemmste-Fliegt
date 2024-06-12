@@ -41,7 +41,6 @@ export const Game = ({
   const [count, setCount] = useState(time);
   const [round, setRound] = useState(1);
   const [answerInDB, setAnswerInDB] = useState(0);
-  const penis = 12;
   const [voting, setVoting] = useState(false);
   const [votingNumber, setVotingNumber] = useState(1);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(1);
