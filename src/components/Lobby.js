@@ -216,17 +216,20 @@ export const Lobby = () => {
             </select>
             <br />
           </form>
+                  {!isCreator && (
           <button
             className="lobby-start-button"
             onClick={handleGameStart}
-            disabled={isCreator}
+            disabled={isCreator || playerNumber < 3}
           >
-            
             Start
           </button>
+)}
         </div>
         <p className="Lobby-playernumber">{playerNumber}/12</p>
-
+          {playerNumber < 3 && (
+          <p className="Lobby-minimal-playernumber">You need at least 3 players to start the game.</p>
+        )}
         <div className="Lobby-player-list">
 
           {players.map((player, index) => (
