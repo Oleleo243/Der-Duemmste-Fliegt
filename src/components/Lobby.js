@@ -27,6 +27,7 @@ export const Lobby = () => {
   const [lives, setLives] = useState(3);
   const [rounds, setRounds] = useState(4);
   const [time, setTime] = useState(30);
+  const [language, setLanguage] = useState("german");
   const [playerNumber, setPlayerNumber] = useState(0);
   const { shouldJoin, setShouldJoin } = useContext(AppContext);
   const [players, setPlayers] = useState([]);
@@ -131,6 +132,11 @@ export const Lobby = () => {
     setTime(e.target.value);
   };
 
+  const handleLangugeChange = (e) => {
+    
+    // to do
+  };
+
   const handleGameStart = (e) => {
     set(ref(db, "rooms/" + roomID + "/status/hasStarted"), true);
   };
@@ -213,6 +219,18 @@ export const Lobby = () => {
               <option value="120">120s</option>
               <option value="150">150s</option>
               <option value="180">180s</option>
+            </select>
+            <br />
+            <label>Languge:</label>
+            <select
+              id="langugeInput"
+              name="langugeInput"
+              required
+              disabled={isCreator}
+              value={language}
+              onChange={handleLangugeChange}
+            >
+       
             </select>
             <br />
           </form>
