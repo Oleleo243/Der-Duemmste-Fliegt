@@ -21,6 +21,7 @@ body, html {
 }
 
 .Lobby-player-name{
+  display: inline-block;
   font-size:smaller;
   width: 120px;
 

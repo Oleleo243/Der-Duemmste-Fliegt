@@ -17,6 +17,7 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { AppContext } from "../App";
 import "../styles/Lobby.css";
 import "../styles/Lobby-grid.css";
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 import { timer } from "../utilities/gameFunctions";
 import { createAvatar } from "@dicebear/core";
@@ -193,10 +194,6 @@ export const Lobby = () => {
               <option value="4">4</option>
               <option value="5">5</option>
               <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
             </select>
             <br />
             <label>Time per Question:</label>
@@ -252,14 +249,17 @@ export const Lobby = () => {
 
           {players.map((player, index) => (
             <div className="Lobby-player"key={player.playerName}>
+              <img src={avatars[index]} alt="Avatar" />
               {player.playerID === uid ? (
-                  <h3 className="Lobby-player-name" style={{ backgroundColor: "yellow" }}>
-                    {player.playerName} 
+                  <h3 className="Lobby-player-name">
+                  <span style={{ backgroundColor: "yellow", display: "inline-block", padding: "0 5px" }}>
+                    {player.playerName}
+                  </span>
                   </h3>
                 ) : (
                   <h3 className="Lobby-player-name">{player.playerName}</h3>
                 )}
-              <img src={avatars[index]} alt="Avatar" />
+              
             </div>
           ))}
         </div>

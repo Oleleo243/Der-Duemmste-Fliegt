@@ -101,7 +101,7 @@ export const AuthJoin = (props) => {
   return (
     <form className="auth" onSubmit={handleSubmit(signIn)}>
       <h1 className="auth-heading">DER DÜMMSTE FLIEGT! 😜🤪</h1> 
-      <input className="auth-input"maxLength="12" placeholder="type name..." {...register("name")} />
+      <input className="auth-input"maxLength="14" placeholder="type name..." {...register("name")} />
       <p className="auth-error">{errors.name?.message}</p>
       <button className="auth-button" type="submit">join</button>
     </form>

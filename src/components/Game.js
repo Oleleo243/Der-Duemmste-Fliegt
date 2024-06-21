@@ -1,6 +1,7 @@
 import { initGame, getRandomQuestion, timer } from "../utilities/gameFunctions";
 import { useState, useRef, useEffect, useContext } from "react";
 import "../styles/Game.css";
+import "../styles/Game-grid.css";
 import { db, auth, uid } from "../firebase-config.js";
 import {
   onValue,
@@ -20,6 +21,7 @@ import { avataaars, lorelei } from "@dicebear/collection";
 import { RandomQuestion } from "./sections/RandomQuestion";
 import { LastAnswer } from "./sections/LastAnswer";
 import { motion } from "framer-motion";
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 import { useMemo } from "react";
 
@@ -66,6 +68,9 @@ export const Game = ({
   let timerId; // Variable, um die ID des Intervals zu speichern
   let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
 
+  function waitForever() {
+    return new Promise(() => {}); // Ein Promise, das niemals aufgelöst oder abgelehnt wird
+  }
   const wait = (milliseconds) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds));
 
@@ -225,7 +230,7 @@ export const Game = ({
         if (playerNumber <= playerCounter + 1) {
           setPlayerCounter(0);
           if (round + 1 > rounds) {
-            setVoting(true);
+            //setVoting(true);
             return;
           } else {
             console.log("RUNDE ERHÖHT");
@@ -257,6 +262,8 @@ export const Game = ({
       }
 
       //console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
+      setLastAnswer("aaaaaaaaaaa")
+      await waitForever();
       await timer(time, setCount, startedAt, serverTimeOffset);
       //console.log("send Answer wird im gameLoop aufgerufen")
       sendAnswer();
@@ -393,14 +400,15 @@ export const Game = ({
 
   if (!voting) {
     return (
-      <div>
-        <div className="InfoLeiste">
-          <h1>{count}</h1>
-          <h1>
-            {round}/{rounds}
-          </h1>
+      <div className="game-container">
+          <div className="Game-heads-up-display">
+          <div className="Game-heads-up-display-valume"><VolumeUpIcon fontSize="large" /></div>
+            <h1 className="Game-heads-up-display-time" >{count}</h1>
+            <h1 className="Game-heads-up-display-rounds">
+              {round}/{rounds}
+            </h1>
         </div>
-        <div className="Players">
+        <div className="Game-player-list">
           {players.map((player, index) => (
             <div key={index}>
               <h2>
@@ -421,19 +429,21 @@ export const Game = ({
           ))}
         </div>
 
-        <div className="game">
-          <motion.h1
+        <div className="Game-question-area">
+          <  motion.h1
+            className="Game-question-area-player-name"
             key={playerName}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, type: "spring", stiffness: 300 }}
-            //whileHover={{ scale: 1.1, color: "#ff5722" }}
           >
             {playerName}
           </motion.h1>
           <RandomQuestion question={randomQuestion} />
-          {myTurn && (
-            <div>
+
+          {/* {myTurn && ( */} 
+          {true && ( 
+            <div  className="Game-question-area-input-div">
               <input
                 type="text"
                 id="meinInputFeld"
@@ -444,20 +454,20 @@ export const Game = ({
                   setPlayerAnswerInput(e.target.value);
                 }}
               ></input>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTP={{ scale: 0.9 }}
+               <button 
                 onClick={sendAnswer}
-                disabled={!myTurn}
-              >
-                button
-              </motion.button>
+                disabled={!myTurn}>
+
+                send answer</button>
+    
             </div>
           )}
-          {showLastAnswer && (
+           {/*{showLastAnswer && ( */}
+           {true && ( 
+
             <>
               <LastAnswer text={lastAnswer} />
-              <h1>{correctAnswer}</h1>
+              <p className="Game-question-area-correct-answer">{correctAnswer}</p>
             </>
           )}
         </div>
@@ -466,9 +476,7 @@ export const Game = ({
   }
   if (voting) {
     return (
-      <div>
         <Voting players={players} votingNumber={votingNumber} roomID={roomID} />
-      </div>
     );
   }
 };

@@ -29,7 +29,7 @@ export const LastAnswer = ({ text }) => {
   }, []);
 
   return (
-    <h1>
+    <h1 className="Game-question-area-player-answer">
       {displayText}
       {showCursor && <span>|</span>}
     </h1>
