@@ -1,5 +1,6 @@
 import { initGame, getRandomQuestion, timer } from "../utilities/gameFunctions";
 import { useState, useRef, useEffect, useContext } from "react";
+import { renderBrains, waitForever, wait, avatars  } from "../utilities/helperFunctions.js";
 import "../styles/Game.css";
 import "../styles/Game-grid.css";
 import { db, auth, uid } from "../firebase-config.js";
@@ -22,6 +23,7 @@ import { RandomQuestion } from "./sections/RandomQuestion";
 import { LastAnswer } from "./sections/LastAnswer";
 import { motion } from "framer-motion";
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { useMemo } from "react";
 
@@ -68,11 +70,7 @@ export const Game = ({
   let timerId; // Variable, um die ID des Intervals zu speichern
   let startTime; // Variable, um den Startzeitpunkt des Timers zu speichern
 
-  function waitForever() {
-    return new Promise(() => {}); // Ein Promise, das niemals aufgelöst oder abgelehnt wird
-  }
-  const wait = (milliseconds) =>
-    new Promise((resolve) => setTimeout(resolve, milliseconds));
+
 
   const avatars = useMemo(() => {
     return players.map((player) =>
@@ -230,7 +228,7 @@ export const Game = ({
         if (playerNumber <= playerCounter + 1) {
           setPlayerCounter(0);
           if (round + 1 > rounds) {
-            //setVoting(true);
+            setVoting(true);
             return;
           } else {
             console.log("RUNDE ERHÖHT");
@@ -263,7 +261,6 @@ export const Game = ({
 
       //console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
       setLastAnswer("aaaaaaaaaaa")
-      await waitForever();
       await timer(time, setCount, startedAt, serverTimeOffset);
       //console.log("send Answer wird im gameLoop aufgerufen")
       sendAnswer();
@@ -410,9 +407,9 @@ export const Game = ({
         </div>
         <div className="Game-player-list">
           {players.map((player, index) => (
-            <div key={index}>
-              <h2>
-                Spieler{index + 1}:{" "}
+            <div className="Game-player-list-player" key={index}>
+               <img src={avatars[index]} alt="Avatar" />
+              <h3>
                 {player.playerID === uid ? (
                   <span style={{ backgroundColor: "yellow" }}>
                     {player.playerName} {" "}
@@ -422,9 +419,8 @@ export const Game = ({
                 )}
                 {index === playerCounter && <span>←</span>}
                 <br />
-                {player.lives} Leben
-                <img src={avatars[index]} alt="Avatar" />
-              </h2>
+                {renderBrains(player.lives)}
+              </h3>
             </div>
           ))}
         </div>
@@ -441,8 +437,7 @@ export const Game = ({
           </motion.h1>
           <RandomQuestion question={randomQuestion} />
 
-          {/* {myTurn && ( */} 
-          {true && ( 
+          {myTurn && (  
             <div  className="Game-question-area-input-div">
               <input
                 type="text"
@@ -462,8 +457,7 @@ export const Game = ({
     
             </div>
           )}
-           {/*{showLastAnswer && ( */}
-           {true && ( 
+           {showLastAnswer && ( 
 
             <>
               <LastAnswer text={lastAnswer} />

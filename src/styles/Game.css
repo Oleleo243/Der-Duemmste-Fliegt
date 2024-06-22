@@ -45,7 +45,6 @@ body, html {
 }
 
 .Game-player-list{
-  border: 1px solid grey;
   width: 100%;
   height: 100%
 
@@ -59,7 +58,12 @@ body, html {
 
 }
 
-
+.Game-player-list-player{
+  display: flex;
+border: 1px solid grey;
+width: 260px;
+height: 60px;
+}
 
 /* CSS für Game-Komponente */
 /* Hier anpassen und in eine separate CSS-Datei speichern */

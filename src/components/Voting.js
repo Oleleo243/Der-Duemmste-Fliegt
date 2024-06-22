@@ -26,6 +26,12 @@ import { HoverHistory } from "./sections/HoverHistory.js";
 import "../styles/Voting.css";
 
 export const Voting = ({ players, votingNumber, roomID }) => {
+  return (
+    <div>
+      
+    </div>
+  )
+  /*
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [votingData, setVotingData] = useState(null);
 
@@ -101,6 +107,7 @@ export const Voting = ({ players, votingNumber, roomID }) => {
             <div className="hovered-text">
               {/* player.playerID */}
               {/*votingData && votingData[player.playerID].question1.Answer*/}
+              /*
               {votingData && (
                 <HoverHistory data={votingData[player.playerID]} />
               )}
@@ -111,3 +118,4 @@ export const Voting = ({ players, votingNumber, roomID }) => {
     </div>
   );
 };
+*/
