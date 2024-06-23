@@ -62,7 +62,7 @@ body, html {
   display: flex;
 border: 1px solid grey;
 width: 260px;
-height: 60px;
+height: 55px;
 }
 
 /* CSS für Game-Komponente */

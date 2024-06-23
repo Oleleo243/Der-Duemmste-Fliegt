@@ -9,6 +9,11 @@ import { avataaars, lorelei } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { useMemo } from "react";
 import { db, auth, uid } from "../firebase-config.js";
+import { renderBrains, waitForever, wait, avatars  } from "../utilities/helperFunctions.js";
+import { FaHandPointLeft } from 'react-icons/fa'; // Importing the hand pointing left icon from FontAwesome
+import { FaRegHandPointLeft } from "react-icons/fa6";
+
+
 import {
   onValue,
   getDatabase,
@@ -26,10 +31,75 @@ import { HoverHistory } from "./sections/HoverHistory.js";
 import "../styles/Voting.css";
 
 export const Voting = ({ players, votingNumber, roomID }) => {
+  const [votingData, setVotingData] = useState(null);
+
+  const avatars = useMemo(() => {
+    return players.map((player) =>
+      createAvatar(avataaars, {
+        size: 70,
+        seed: player.playerName,
+      }).toDataUriSync()
+    );
+  }, [players]);
+
+  useEffect(() => {
+    async function fetchVotingData() {
+      try {
+        const votingRef = ref(
+          db,
+          "rooms/" + roomID + "/history/Voting" + votingNumber
+        );
+        const snapshot = await get(votingRef);
+
+        if (snapshot.exists()) {
+          const votingData = snapshot.val();
+          setVotingData(votingData);
+        } else {
+          console.log("Keine Daten für das angegebene Voting gefunden.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Lesen des Votings:", error);
+      }
+    }
+
+    fetchVotingData();
+  }, []);
   return (
-    <div>
-      
-    </div>
+    <div className="Voting-container">
+
+    <div className="Voting-player-list">
+    
+    {players.map((player, index) => (
+      <div className="Voting-player"key={player.playerName}>
+        <div className="Voting-player-avatar-container">
+              <img className="Voting-player-avatar" src={avatars[index]} alt="Avatar" />
+              {votingData && (
+                <div className="Voting-player-avatar-tooltip">
+                  {JSON.stringify(votingData[player.playerID])}
+                </div>
+              )}
+              
+                
+            </div>
+              <h3 className="Voting-player-name">
+                {player.playerID === uid ? (
+                  <span style={{ backgroundColor: "yellow" }}>
+                    {player.playerName} {" "}
+                  </span>
+                ) : (
+                  player.playerName
+                )}
+                <br />
+                {renderBrains(player.lives)}
+              </h3>
+              <button className="Voting-button"  >
+                <FaRegHandPointLeft className="Voting-point-left-icon" />
+              </button>
+      </div>
+    ))}
+  </div>
+  </div>
+
   )
   /*
   const [hoveredIndex, setHoveredIndex] = useState(null);

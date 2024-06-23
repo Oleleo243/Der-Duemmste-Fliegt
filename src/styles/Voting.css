@@ -1,30 +1,71 @@
-/* styles.css (oder eine andere Datei, die du bevorzugst) */
-
-/* Container für die Voting-Komponente */
-.voting-container {
-  text-align: center;
-  margin: 20px;
+.Voting-container {    
+  height: 100vh; 
+  width: 100vw;      
 }
 
-/* Überschrift */
-.voting-title {
-  font-size: 24px;
-  margin-bottom: 20px;
+.Voting-player-list{
+  display: grid;
+  grid-row-gap: 1.5rem; 
+  grid-column-gap: 0.5rem; 
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(75px, 1fr));     
+  width: 1430px;
+  height: 245px;
+  margin: 0 auto;         
+  position: relative;
+  top: 300px
 }
 
-/* Spielerbuttons */
-.player-button {
-  background-color: #3498db;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  margin: 5px;
-  cursor: pointer;
-  border-radius: 4px;
+.Voting-button{
+  background-color: transparent; /* Make the button background transparent */
+  border: none; /* Remove default border */
+  padding: 0; /* Remove default padding */
+  cursor: pointer; /* Pointer cursor on hover */
+  display: flex; /* Center icon */
+  align-items: center; /* Center icon vertically */
+  justify-content: center; /* Center icon horizontally */
 }
 
-/* Deaktivierter Spielerbutton */
-.player-button[disabled] {
-  background-color: #ccc;
-  cursor: not-allowed;
+.Voting-point-left-icon {
+  font-size: 48px; /* Icon size - make it larger */
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+.Voting-button:hover .Voting-point-left-icon {
+  color: #e6b800; /* Change color on hover */
+}
+
+.Voting-player {
+  display: flex;
+  border: 1px solid grey;
+  width: 350px;
+  height: 75px;
+  
+}
+
+.Voting-player-name{
+  width: 200px;
+
+}
+
+.Voting-player-avatar-container {
+  position: relative; /* Container für den Avatar */
+}
+
+.Voting-player-avatar-tooltip {
+  position: absolute; /* Absolute Position, um über dem Avatar zu schweben */
+  top: -30px; /* Positionierung oberhalb des Avatars */
+  left: 50%; /* Zentriert über dem Avatar */
+  transform: translateX(-50%); /* Zentriert horizontal */
+  background-color: rgba(0, 0, 0, 0.8); /* Hintergrundfarbe der Sprechblase */
+  color: white; /* Textfarbe */
+  padding: 5px 10px; /* Innenabstand */
+  border-radius: 5px; /* Abgerundete Ecken */
+  pointer-events: none; /* Sprechblase soll keine Events blockieren */
+  opacity: 0; /* Standardmäßig unsichtbar */
+  transition: opacity 0.3s ease-in-out; /* Animation für die Sichtbarkeit */
+}
+
+.Voting-player-avatar-container:hover .Voting-player-avatar-tooltip {
+  opacity: 1; /* Bei Hover wird die Sprechblase sichtbar */
 }
