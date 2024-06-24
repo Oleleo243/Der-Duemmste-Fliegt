@@ -64,6 +64,8 @@
   pointer-events: none; /* Sprechblase soll keine Events blockieren */
   opacity: 0; /* Standardmäßig unsichtbar */
   transition: opacity 0.3s ease-in-out; /* Animation für die Sichtbarkeit */
+  width: 350px;
+
 }
 
 .Voting-player-avatar-container:hover .Voting-player-avatar-tooltip {

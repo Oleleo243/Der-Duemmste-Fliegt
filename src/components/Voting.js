@@ -12,6 +12,7 @@ import { db, auth, uid } from "../firebase-config.js";
 import { renderBrains, waitForever, wait, avatars  } from "../utilities/helperFunctions.js";
 import { FaHandPointLeft } from 'react-icons/fa'; // Importing the hand pointing left icon from FontAwesome
 import { FaRegHandPointLeft } from "react-icons/fa6";
+import { VotingPlayerAvatarTooltip } from "./sections/VotingPlayerAvatarTooltip";
 
 
 import {
@@ -74,9 +75,8 @@ export const Voting = ({ players, votingNumber, roomID }) => {
         <div className="Voting-player-avatar-container">
               <img className="Voting-player-avatar" src={avatars[index]} alt="Avatar" />
               {votingData && (
-                <div className="Voting-player-avatar-tooltip">
-                  {JSON.stringify(votingData[player.playerID])}
-                </div>
+                  <VotingPlayerAvatarTooltip votingData={votingData} playerID={player.playerID} />
+
               )}
               
                 
