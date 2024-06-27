@@ -35,14 +35,16 @@ export const Game = ({
   isCreator,
   lives,
   rounds,
-  time,
+  questionTime,
+  votingTime,
   playerNumber,
   setPlayerNumber,
   players,
   db,
   roomID,
+  setPlayers,
 }) => {
-  const [count, setCount] = useState(time);
+  const [count, setCount] = useState(questionTime);
   const [round, setRound] = useState(1);
   const [answerInDB, setAnswerInDB] = useState(0);
   const [voting, setVoting] = useState(false);
@@ -261,7 +263,7 @@ export const Game = ({
 
       //console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
       setLastAnswer("aaaaaaaaaaa")
-      await timer(time, setCount, startedAt, serverTimeOffset);
+      await timer(questionTime, setCount, startedAt, serverTimeOffset);
       //console.log("send Answer wird im gameLoop aufgerufen")
       sendAnswer();
     };
@@ -470,7 +472,8 @@ export const Game = ({
   }
   if (voting) {
     return (
-        <Voting players={players} votingNumber={votingNumber} roomID={roomID} />
+        <Voting players={players} votingNumber={votingNumber} roomID={roomID} setPlayers={setPlayers}
+/>
     );
   }
 };

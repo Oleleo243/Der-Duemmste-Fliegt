@@ -73,6 +73,7 @@ export const Home = () => {
             isCreator: true,
             playerName: auth.currentUser.displayName,
             lives: 3,
+            votedBy: [],
           },
         },
         questions: {

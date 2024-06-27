@@ -21,6 +21,7 @@ import {
   onChildChanged,
   ref,
   set,
+  update,
   push,
   hasChild,
   exists,
@@ -31,8 +32,11 @@ import { HoverHistory } from "./sections/HoverHistory.js";
 
 import "../styles/Voting.css";
 
-export const Voting = ({ players, votingNumber, roomID }) => {
+export const Voting = ({ players, votingNumber, roomID,   setPlayers,
+}) => {
   const [votingData, setVotingData] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
+
 
   const avatars = useMemo(() => {
     return players.map((player) =>
@@ -43,7 +47,11 @@ export const Voting = ({ players, votingNumber, roomID }) => {
     );
   }, [players]);
 
+
+
+  
   useEffect(() => {
+    console.log(players);
     async function fetchVotingData() {
       try {
         const votingRef = ref(
@@ -61,10 +69,40 @@ export const Voting = ({ players, votingNumber, roomID }) => {
       } catch (error) {
         console.error("Fehler beim Lesen des Votings:", error);
       }
+
+      const playersRef = ref(db, "rooms/" + roomID + "/players");
+      const playersListener = onValue(playersRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const playersArray = Object.entries(data).map(
+            ([playerID, playerData]) => {
+              return { playerID: playerID, ...playerData };
+            }
+          );
+          setPlayers(playersArray);
+        }
+      });
     }
 
     fetchVotingData();
   }, []);
+
+  const  voteForPlayer = async (playerID) => {
+    setHasVoted(true);
+    try {
+
+      // alles löschen und nochmal von vorne
+      let player = players.find(player => player.playerID === playerID);
+
+      let votedByList = player ? player.votedBy || [] : [];      const playerRef = ref(db, "rooms/" + roomID +"/players/" + playerID);
+      await update(playerRef, { votedBy: [uid] });
+        } catch (error) {
+    console.error(error);
+    throw new Error("Failed update vote");
+
+  }
+  };
+
   return (
     <div className="Voting-container">
 
@@ -92,7 +130,7 @@ export const Voting = ({ players, votingNumber, roomID }) => {
                 <br />
                 {renderBrains(player.lives)}
               </h3>
-              <button className="Voting-button"  >
+              <button      className="Voting-button" onClick={() => voteForPlayer(player.playerID)} >
                 <FaRegHandPointLeft className="Voting-point-left-icon" />
               </button>
       </div>

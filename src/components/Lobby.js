@@ -27,7 +27,9 @@ import { useMemo } from "react";
 export const Lobby = () => {
   const [lives, setLives] = useState(3);
   const [rounds, setRounds] = useState(4);
-  const [time, setTime] = useState(30);
+  const [questionTime, setQuestionTime] = useState(30);
+  const [votingTime, setVotingTime] = useState(45);
+
   const [language, setLanguage] = useState("german");
   const [playerNumber, setPlayerNumber] = useState(0);
   const { shouldJoin, setShouldJoin } = useContext(AppContext);
@@ -79,11 +81,18 @@ export const Lobby = () => {
         setRounds(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
       }
     });
-    const timeRef = ref(db, "rooms/" + roomID + "/settings/time"); // Pfad zum ausgewählten Feld in der Realtime Database
-    const timeListener = onValue(timeRef, (snapshot) => {
+    const questionTimeRef = ref(db, "rooms/" + roomID + "/settings/questionTime"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const questionTimeListener = onValue(questionTimeRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+        setQuestionTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+      }
+    });
+    const votingTimeRef = ref(db, "rooms/" + roomID + "/settings/votingTime"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const votingTimeListener = onValue(votingTimeRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setVotingTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
       }
     });
     const hasStartedRef = ref(db, "rooms/" + roomID + "/status/hasStarted"); // Pfad zum ausgewählten Feld in der Realtime Database
@@ -128,13 +137,17 @@ export const Lobby = () => {
     setRounds(e.target.value);
   };
 
-  const handleTimeChange = (e) => {
-    set(ref(db, "rooms/" + roomID + "/settings/time"), e.target.value);
-    setTime(e.target.value);
+  const handleQuestionTimeChange = (e) => {
+    set(ref(db, "rooms/" + roomID + "/settings/questionTime"), e.target.value);
+    setQuestionTime(e.target.value);
+  };
+
+  const handleVotingTimeChange = (e) => {
+    set(ref(db, "rooms/" + roomID + "/settings/votingTime"), e.target.value);
+    setVotingTime(e.target.value);
   };
 
   const handleLangugeChange = (e) => {
-    
     // to do
   };
 
@@ -202,11 +215,31 @@ export const Lobby = () => {
               name="timePerQuestion"
               required
               disabled={isCreator}
-              value={time}
-              onChange={handleTimeChange}
+              value={questionTime}
+              onChange={handleQuestionTimeChange}
             >
               <option value="5">5s</option>
               <option value="10">10s</option>
+              <option value="20">20s</option>
+              <option value="30">30s</option>
+              <option value="40">40s</option>
+              <option value="50">50s</option>
+              <option value="60">60s</option>
+              <option value="90">90s</option>
+              <option value="120">120s</option>
+              <option value="150">150s</option>
+              <option value="180">180s</option>
+            </select>
+            <br />
+            <label>Voting Time:</label>
+            <select
+              id="Voting Time Input"
+              name="Voting Time"
+              required
+              disabled={isCreator}
+              value={votingTime}
+              onChange={handleVotingTimeChange}
+            >
               <option value="20">20s</option>
               <option value="30">30s</option>
               <option value="40">40s</option>
@@ -282,12 +315,15 @@ export const Lobby = () => {
           isCreator={isCreator}
           lives={lives}
           rounds={rounds}
-          time={time}
+          questionTime={questionTime}
+          votingTime={votingTime}
+
           db={db}
           playerNumber={playerNumber}
           roomID={roomID}
           setSlayerNumber={setPlayerNumber}
           players={players}
+          setPlayers={setPlayers}
         />
       </div>
     );
