@@ -52,19 +52,20 @@ export const Lobby = () => {
       setIsCreator(true);
       // console.log("jetzt aber ich will schlafen")
     }
-    const playersRef = ref(db, "rooms/" + roomID + "/players");
-    const playersListener = onValue(playersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const playersArray = Object.entries(data).map(
-          ([playerID, playerData]) => {
-            return { playerID: playerID, ...playerData };
-          }
-        );
-        setPlayers(playersArray);
-        setPlayerNumber(playersArray.length);
-      }
-    });
+
+      const playersRef = ref(db, "rooms/" + roomID + "/players");
+      const playersListener = onValue(playersRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const playersArray = Object.entries(data).map(([playerID, playerData]) => {
+            const votedBy = playerData.votedBy ? Object.keys(playerData.votedBy) : [];
+            return { playerID: playerID, ...playerData, votedBy: votedBy };
+          });
+          setPlayers(playersArray);
+          setPlayerNumber(playersArray.length);
+
+        }
+      });
 
     // sync game Settings
     const livesRef = ref(db, "rooms/" + roomID + "/settings/lives"); // Pfad zum ausgewählten Feld in der Realtime Database

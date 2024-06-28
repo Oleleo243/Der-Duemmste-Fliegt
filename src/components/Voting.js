@@ -69,38 +69,33 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
       } catch (error) {
         console.error("Fehler beim Lesen des Votings:", error);
       }
+    }
+      fetchVotingData();
 
       const playersRef = ref(db, "rooms/" + roomID + "/players");
       const playersListener = onValue(playersRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          const playersArray = Object.entries(data).map(
-            ([playerID, playerData]) => {
-              return { playerID: playerID, ...playerData };
-            }
-          );
+          const playersArray = Object.entries(data).map(([playerID, playerData]) => {
+            const votedBy = playerData.votedBy ? Object.keys(playerData.votedBy) : [];
+            return { playerID: playerID, ...playerData, votedBy: votedBy };
+          });
           setPlayers(playersArray);
+          console.log("test");
+
+          console.log(playersArray);
         }
       });
-    }
+    
 
-    fetchVotingData();
   }, []);
 
   const  voteForPlayer = async (playerID) => {
+    
     setHasVoted(true);
-    try {
+    // add vote to database
+    await set(ref(db, `rooms/${roomID}/players/${playerID}/votedBy/${uid}`), true);
 
-      // alles löschen und nochmal von vorne
-      let player = players.find(player => player.playerID === playerID);
-
-      let votedByList = player ? player.votedBy || [] : [];      const playerRef = ref(db, "rooms/" + roomID +"/players/" + playerID);
-      await update(playerRef, { votedBy: [uid] });
-        } catch (error) {
-    console.error(error);
-    throw new Error("Failed update vote");
-
-  }
   };
 
   return (
@@ -130,6 +125,16 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
                 <br />
                 {renderBrains(player.lives)}
               </h3>
+              {player.votedBy.length > 0 && (
+              <div className="Voters-list">
+                Voted by:
+                {player.votedBy.map((voterID) => (
+                  <span key={voterID} className="Voter-id">
+                    {voterID}{" "}
+                  </span>
+                ))}
+              </div>
+            )}
               <button      className="Voting-button" onClick={() => voteForPlayer(player.playerID)} >
                 <FaRegHandPointLeft className="Voting-point-left-icon" />
               </button>
