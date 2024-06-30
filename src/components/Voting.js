@@ -9,7 +9,7 @@ import { avataaars, lorelei } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { useMemo } from "react";
 import { db, auth, uid } from "../firebase-config.js";
-import { renderBrains, waitForever, wait, avatars  } from "../utilities/helperFunctions.js";
+import { renderBrains, waitForever, wait, avatars, getPlayerIndexById  } from "../utilities/helperFunctions.js";
 import { FaHandPointLeft } from 'react-icons/fa'; // Importing the hand pointing left icon from FontAwesome
 import { FaRegHandPointLeft } from "react-icons/fa6";
 import { VotingPlayerAvatarTooltip } from "./sections/VotingPlayerAvatarTooltip";
@@ -126,18 +126,20 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
                 {renderBrains(player.lives)}
               </h3>
               {player.votedBy.length > 0 && (
-              <div className="Voters-list">
-                Voted by:
+              <div className="Voting-voters-list">
                 {player.votedBy.map((voterID) => (
                   <span key={voterID} className="Voter-id">
-                    {voterID}{" "}
+                     <img className="Voting-voted-by-avatar" src={avatars[getPlayerIndexById(voterID, players)]} alt="Avatar" /> 
+
                   </span>
                 ))}
               </div>
             )}
-              <button      className="Voting-button" onClick={() => voteForPlayer(player.playerID)} >
+              {player.playerID !== uid && (              
+                <button      disabled={hasVoted} className="Voting-button" onClick={() => voteForPlayer(player.playerID)} >
                 <FaRegHandPointLeft className="Voting-point-left-icon" />
               </button>
+              )}
       </div>
     ))}
   </div>

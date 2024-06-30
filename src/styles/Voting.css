@@ -71,3 +71,13 @@
 .Voting-player-avatar-container:hover .Voting-player-avatar-tooltip {
   opacity: 1; /* Bei Hover wird die Sprechblase sichtbar */
 }
+
+.Voting-voters-list{
+  position: absolute;
+  left: 80px;
+  top: 60px
+}
+
+.Voting-voted-by-avatar{
+  width: 25px
+}

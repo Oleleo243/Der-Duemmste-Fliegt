@@ -19,3 +19,15 @@ export const getRandomBoolean = () => {
   export const wait = (milliseconds) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds))
 
+  export const getPlayerIndexById = (playerID, playersArray) => {
+    for (let i = 0; i < playersArray.length; i++) {
+      
+
+
+      if (playersArray[i].playerID === playerID) {
+        return i;
+      }
+    }
+    return -1; // Return -1 if the playerID is not found
+  }
+
