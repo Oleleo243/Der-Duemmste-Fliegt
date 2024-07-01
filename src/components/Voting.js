@@ -15,6 +15,7 @@ import { FaRegHandPointLeft } from "react-icons/fa6";
 import { VotingPlayerAvatarTooltip } from "./sections/VotingPlayerAvatarTooltip";
 
 
+
 import {
   onValue,
   getDatabase,
@@ -32,10 +33,20 @@ import { HoverHistory } from "./sections/HoverHistory.js";
 
 import "../styles/Voting.css";
 
-export const Voting = ({ players, votingNumber, roomID,   setPlayers,
+export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
 }) => {
+  const votingTime = 30;
   const [votingData, setVotingData] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
+  const [startedAt, setStartedAt] = useState(null);
+  const [intervalID, setIntervalID] = useState(0);
+  const [count, setCount] = useState(votingTime);
+  const [votingPhase, setVotingPhase] = useState("Voting Ends In: ");
+
+  
+  let serverTimeOffset = 0;
+
+
 
 
   const avatars = useMemo(() => {
@@ -47,11 +58,49 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
     );
   }, [players]);
 
-
+  const timer = (time, setCount, startAt, serverTimeOffset) => {
+    return new Promise((resolve) => {
+      const interval = setInterval(() => {
+        setIntervalID(interval);
+        //console.log("intervalid1: " + intervalID);
+        const timeLeft =
+          time * 1000 - (Date.now() - startAt - serverTimeOffset);
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          setCount(0.0);
+          resolve(); // Resolve the Promise when the timer completes
+        } else {
+          //setCount(parseFloat(`${Math.floor(timeLeft/1000)}.${timeLeft % 1000}`));
+          setCount(Math.floor(timeLeft / 1000)); // Zeile geändert
+        }
+      }, 100);
+    });
+  };
 
   
   useEffect(() => {
-    console.log(players);
+    const timeOffListener = onValue(
+      ref(db, ".info/serverTimeOffset"),
+      (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          serverTimeOffset = snapshot.val();
+        }
+      }
+    );
+
+    const startAtRef = ref(db, "rooms/" + roomID + "/status/startAt"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const startAtListener = onValue(startAtRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setStartedAt(data);
+      }
+    });
+
+    if (!isCreator) {
+      set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
+    }
+
     async function fetchVotingData() {
       try {
         const votingRef = ref(
@@ -81,14 +130,25 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
             return { playerID: playerID, ...playerData, votedBy: votedBy };
           });
           setPlayers(playersArray);
-          console.log("test");
-
-          console.log(playersArray);
         }
       });
-    
+      
+      // starts voting process
+      set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
 
   }, []);
+
+  useEffect(() => {
+    const votingProcess = async () => {
+      await timer(votingTime, setCount, startedAt, serverTimeOffset);
+      console.log("test");
+      setVotingPhase("Proceeding In: ")
+      await timer(5, setCount, startedAt, serverTimeOffset);
+
+    }
+
+    votingProcess();
+  }, [startedAt]);
 
   const  voteForPlayer = async (playerID) => {
     
@@ -100,6 +160,7 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
 
   return (
     <div className="Voting-container">
+    <h1 className="Voting-time" >{votingPhase}{count}</h1>
 
     <div className="Voting-player-list">
     
@@ -129,6 +190,7 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers,
               <div className="Voting-voters-list">
                 {player.votedBy.map((voterID) => (
                   <span key={voterID} className="Voter-id">
+                    
                      <img className="Voting-voted-by-avatar" src={avatars[getPlayerIndexById(voterID, players)]} alt="Avatar" /> 
 
                   </span>

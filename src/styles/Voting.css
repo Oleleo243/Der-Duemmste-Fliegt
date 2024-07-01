@@ -36,6 +36,7 @@
 }
 
 .Voting-player {
+  position: relative;
   display: flex;
   border: 1px solid grey;
   width: 350px;
