@@ -264,7 +264,7 @@ export const Game = ({
       //console.log("intro animation:" + "Spieler ist ... dran:" + "Frage: ...");
       setLastAnswer("aaaaaaaaaaa")
       await timer(questionTime, setCount, startedAt, serverTimeOffset);
-      //console.log("send Answer wird im gameLoop aufgerufen")
+      console.log("game timer")
       sendAnswer();
     };
     // serverTimestamp() gibt 2 triggers vom listener mit der lokalen und mit der server Zeit deswegen braucht man das

@@ -97,9 +97,6 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
       }
     });
 
-    if (!isCreator) {
-      set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
-    }
 
     async function fetchVotingData() {
       try {
@@ -133,21 +130,23 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
         }
       });
       
-      // starts voting process
+      
+    if (!isCreator) {
       set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
-
+    }
   }, []);
 
   useEffect(() => {
     const votingProcess = async () => {
-      await timer(votingTime, setCount, startedAt, serverTimeOffset);
-      console.log("test");
+      await timer(30, setCount, startedAt, serverTimeOffset);
       setVotingPhase("Proceeding In: ")
       await timer(5, setCount, startedAt, serverTimeOffset);
 
     }
 
-    votingProcess();
+    if (startedAt) {
+      votingProcess();
+    }
   }, [startedAt]);
 
   const  voteForPlayer = async (playerID) => {
