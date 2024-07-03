@@ -33,9 +33,8 @@ import { HoverHistory } from "./sections/HoverHistory.js";
 
 import "../styles/Voting.css";
 
-export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
+export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers, isCreator
 }) => {
-  const votingTime = 30;
   const [votingData, setVotingData] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [startedAt, setStartedAt] = useState(null);
@@ -43,7 +42,8 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
   const [count, setCount] = useState(votingTime);
   const [votingPhase, setVotingPhase] = useState("Voting Ends In: ");
 
-  
+  let votingTimeValue = votingTime;
+
   let serverTimeOffset = 0;
 
 
@@ -138,9 +138,15 @@ export const Voting = ({ players, votingNumber, roomID,   setPlayers, isCreator
 
   useEffect(() => {
     const votingProcess = async () => {
-      await timer(30, setCount, startedAt, serverTimeOffset);
+      await timer(votingTime, setCount, startedAt, serverTimeOffset);
       setVotingPhase("Proceeding In: ")
-      await timer(5, setCount, startedAt, serverTimeOffset);
+
+      // Hier wird der startAt Wert verwendet, aber es wird sichergestellt, dass der Timer 5 Sekunden läuft
+      const updatedVotingTime = parseInt(votingTime) + 6;
+      console.log("updatevotingTimeValue after: " + updatedVotingTime);
+
+
+      await timer(updatedVotingTime, setCount, startedAt, serverTimeOffset);
 
     }
 

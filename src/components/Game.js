@@ -472,7 +472,7 @@ export const Game = ({
   }
   if (voting) {
     return (
-        <Voting isCreator={isCreator} players={players} votingNumber={votingNumber} roomID={roomID} setPlayers={setPlayers}
+        <Voting votingTime={votingTime} isCreator={isCreator} players={players} votingNumber={votingNumber} roomID={roomID} setPlayers={setPlayers}
 />
     );
   }

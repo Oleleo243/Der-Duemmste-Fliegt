@@ -28,7 +28,7 @@ export const Lobby = () => {
   const [lives, setLives] = useState(3);
   const [rounds, setRounds] = useState(4);
   const [questionTime, setQuestionTime] = useState(30);
-  const [votingTime, setVotingTime] = useState(45);
+  const [votingTime, setVotingTime] = useState(20);
 
   const [language, setLanguage] = useState("german");
   const [playerNumber, setPlayerNumber] = useState(0);
@@ -87,6 +87,7 @@ export const Lobby = () => {
       const data = snapshot.val();
       if (data) {
         setQuestionTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+
       }
     });
     const votingTimeRef = ref(db, "rooms/" + roomID + "/settings/votingTime"); // Pfad zum ausgewählten Feld in der Realtime Database
@@ -94,6 +95,7 @@ export const Lobby = () => {
       const data = snapshot.val();
       if (data) {
         setVotingTime(data); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+
       }
     });
     const hasStartedRef = ref(db, "rooms/" + roomID + "/status/hasStarted"); // Pfad zum ausgewählten Feld in der Realtime Database
@@ -241,6 +243,7 @@ export const Lobby = () => {
               value={votingTime}
               onChange={handleVotingTimeChange}
             >
+              <option value="10">10s</option>
               <option value="20">20s</option>
               <option value="30">30s</option>
               <option value="40">40s</option>
@@ -318,7 +321,6 @@ export const Lobby = () => {
           rounds={rounds}
           questionTime={questionTime}
           votingTime={votingTime}
-
           db={db}
           playerNumber={playerNumber}
           roomID={roomID}
