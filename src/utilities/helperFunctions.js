@@ -31,3 +31,15 @@ export const getRandomBoolean = () => {
     return -1; // Return -1 if the playerID is not found
   }
 
+
+
+export const getTopVotedPlayers = (players) => {
+  if (players.length === 0) return [];
+
+  // Finde die maximale Anzahl an Stimmen
+  let maxVotes = Math.max(...players.map(player => player.votedBy.length));
+
+  // Finde alle Spieler mit der maximalen Anzahl an Stimmen
+  return players.filter(player => player.votedBy.length === maxVotes);
+}
+

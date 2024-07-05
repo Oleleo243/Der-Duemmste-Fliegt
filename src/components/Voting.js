@@ -9,7 +9,7 @@ import { avataaars, lorelei } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { useMemo } from "react";
 import { db, auth, uid } from "../firebase-config.js";
-import { renderBrains, waitForever, wait, avatars, getPlayerIndexById  } from "../utilities/helperFunctions.js";
+import { renderBrains, waitForever, wait, avatars, getPlayerIndexById, getTopVotedPlayers  } from "../utilities/helperFunctions.js";
 import { FaHandPointLeft } from 'react-icons/fa'; // Importing the hand pointing left icon from FontAwesome
 import { FaRegHandPointLeft } from "react-icons/fa6";
 import { VotingPlayerAvatarTooltip } from "./sections/VotingPlayerAvatarTooltip";
@@ -138,16 +138,33 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
 
   useEffect(() => {
     const votingProcess = async () => {
+
       await timer(votingTime, setCount, startedAt, serverTimeOffset);
       setVotingPhase("Proceeding In: ")
-
-      // Hier wird der startAt Wert verwendet, aber es wird sichergestellt, dass der Timer 5 Sekunden läuft
       const updatedVotingTime = parseInt(votingTime) + 6;
-      console.log("updatevotingTimeValue after: " + updatedVotingTime);
 
+      // count votes
+      const topVotedPlayers = getTopVotedPlayers(players);
 
+      // handle vote results
+      setHasVoted(true);
       await timer(updatedVotingTime, setCount, startedAt, serverTimeOffset);
 
+      if(!isCreator){
+        if (topVotedPlayers.length === 1) {
+          await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[0].playerID}/lives`),  topVotedPlayers[0].lives-1);
+
+        } else if (topVotedPlayers.length > 1) {
+          const randomIndex = Math.floor(Math.random() * topVotedPlayers.length);
+          await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[randomIndex].playerID}/lives`), topVotedPlayers[randomIndex].lives-1);
+
+        } else {
+          console.log('No players found.');
+        } 
+      }
+
+
+    
     }
 
     if (startedAt) {
