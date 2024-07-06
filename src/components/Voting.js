@@ -9,7 +9,7 @@ import { avataaars, lorelei } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { useMemo } from "react";
 import { db, auth, uid } from "../firebase-config.js";
-import { renderBrains, waitForever, wait, avatars, getPlayerIndexById, getTopVotedPlayers  } from "../utilities/helperFunctions.js";
+import { renderBrains, waitForever, wait, avatars, getPlayerIndexById, getTopVotedPlayers, getPlayerById } from "../utilities/helperFunctions.js";
 import { FaHandPointLeft } from 'react-icons/fa'; // Importing the hand pointing left icon from FontAwesome
 import { FaRegHandPointLeft } from "react-icons/fa6";
 import { VotingPlayerAvatarTooltip } from "./sections/VotingPlayerAvatarTooltip";
@@ -41,6 +41,7 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
   const [intervalID, setIntervalID] = useState(0);
   const [count, setCount] = useState(votingTime);
   const [votingPhase, setVotingPhase] = useState("Voting Ends In: ");
+  let votingProcessFinishied = false;
 
   let votingTimeValue = votingTime;
 
@@ -76,6 +77,11 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       }, 100);
     });
   };
+
+  const handlePlayerLifeDecrease = () => {
+    set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
+
+  }
 
   
   useEffect(() => {
@@ -117,7 +123,6 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       }
     }
       fetchVotingData();
-
       const playersRef = ref(db, "rooms/" + roomID + "/players");
       const playersListener = onValue(playersRef, (snapshot) => {
         const data = snapshot.val();
@@ -127,6 +132,16 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
             return { playerID: playerID, ...playerData, votedBy: votedBy };
           });
           setPlayers(playersArray);
+  
+          // Check, ob Leben eines Spielers verändert wurden
+          playersArray.forEach((player) => {
+            const previousPlayer = getPlayerById(player.playerID, players);
+            if (previousPlayer && previousPlayer.lives !== undefined && previousPlayer.lives !== player.lives) {
+              handlePlayerLifeDecrease();
+            }
+          });
+        //  console.log("players Array: " + playersArray)
+         setPlayers(playersArray);
         }
       });
       
@@ -140,15 +155,14 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
     const votingProcess = async () => {
 
       await timer(votingTime, setCount, startedAt, serverTimeOffset);
-      setVotingPhase("Proceeding In: ")
-      const updatedVotingTime = parseInt(votingTime) + 6;
+     // const updatedVotingTime = parseInt(votingTime) + 6;
 
       // count votes
       const topVotedPlayers = getTopVotedPlayers(players);
 
       // handle vote results
       setHasVoted(true);
-      await timer(updatedVotingTime, setCount, startedAt, serverTimeOffset);
+      votingProcessFinishied = true;
 
       if(!isCreator){
         if (topVotedPlayers.length === 1) {
@@ -164,11 +178,18 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       }
 
 
-    
     }
 
-    if (startedAt) {
+    const endVoting = async () => {
+      setVotingPhase("Proceeding In: ")
+      await timer(3, setCount, startedAt, serverTimeOffset);
+    }
+    console.log("votingProcessFinishied: " + votingProcessFinishied)
+    if (startedAt && !votingProcessFinishied) {
       votingProcess();
+    }
+    else if (startedAt && votingProcessFinishied) {
+      endVoting();
     }
   }, [startedAt]);
 

@@ -31,6 +31,17 @@ export const getRandomBoolean = () => {
     return -1; // Return -1 if the playerID is not found
   }
 
+  export const getPlayerById = (playerID, playersArray) => {
+    for (let i = 0; i < playersArray.length; i++) {
+      
+
+
+      if (playersArray[i].playerID === playerID) {
+        return playersArray[i];
+      }
+    }
+    return -1; // Return -1 if the playerID is not found
+  }
 
 
 export const getTopVotedPlayers = (players) => {
