@@ -26,7 +26,7 @@ import { createAvatar } from "@dicebear/core";
 import { avataaars, lorelei } from "@dicebear/collection";
 import { getRandomBoolean } from "../utilities/helperFunctions.js";
 
-export const Home = () => {
+export const Auth = () => {
   const { shouldJoin, setShouldJoin } = useContext(AppContext);
   const [isAuth, setIsAuth] = useState(false);
   const [errorMessage, setIsErrorMessage] = useState(false);
@@ -94,7 +94,6 @@ export const Home = () => {
       await set(newRoomRef, newRoomData);
       setRoomID(newRoomRef.key);
       setShouldJoin(false);
-      navigate(`/room/${newRoomRef.key}`);
 
       return newRoomRef.key;
     } catch (error) {
@@ -103,9 +102,13 @@ export const Home = () => {
     }
   }
 
+  useEffect(() => {
+    if(shouldJoin){
+      navigate(`/room/${newRoomRef.key}`);
+    }
+  }, [shouldJoin]);
 
-
-  if (!isAuth || roomID === null) {
+ // if (!isAuth || roomID === null) {
     return (
       <form className="auth" onSubmit={handleSubmit(signIn)}>
       <h1 className="auth-heading">Kick the Fool</h1>
@@ -115,7 +118,7 @@ export const Home = () => {
     </form>
     )
   }
-
+/*
   if (roomID !== null) {
     return (
       <div>
@@ -124,3 +127,4 @@ export const Home = () => {
     );
   }
 };
+  */

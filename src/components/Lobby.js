@@ -24,7 +24,7 @@ import { createAvatar } from "@dicebear/core";
 import { avataaars, lorelei } from "@dicebear/collection";
 import { useMemo } from "react";
 
-export const Lobby = () => {
+export const Lobby = (roomID, setInLobby) => {
   const [lives, setLives] = useState(3);
   const [rounds, setRounds] = useState(4);
   const [questionTime, setQuestionTime] = useState(30);
@@ -37,9 +37,6 @@ export const Lobby = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
-  const url = window.location.pathname;
-  const parts = url.split("/");
-  const roomID = parts[2];
   const [count, setCount] = useState(6.0);
   const [startedAt, setStartedAt] = useState(null);
   let timeLeft = 3;
@@ -102,7 +99,7 @@ export const Lobby = () => {
     const hasStartedListener = onValue(hasStartedRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setHasStarted(true); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
+        setInLobby(false); // Aktualisiere den Wert im State mit dem Wert aus der Datenbank
       }
     });
   }, []);
@@ -167,7 +164,7 @@ export const Lobby = () => {
     );
   }
 
-  if (!shouldJoin && hasStarted === false) {
+  if (!shouldJoin) {
     return (
       <div className="lobby-container">
         <div className="Lobby-settings-box">
@@ -310,25 +307,5 @@ export const Lobby = () => {
       </div>
     );
   }
-  if (!shouldJoin && hasStarted === true) {
-    //console.log("startedAt2: " + startedAt);
-    // console.log("lives: " + lives);
-    return (
-      <div>
-        <Game
-          isCreator={isCreator}
-          lives={lives}
-          rounds={rounds}
-          questionTime={questionTime}
-          votingTime={votingTime}
-          db={db}
-          playerNumber={playerNumber}
-          roomID={roomID}
-          setSlayerNumber={setPlayerNumber}
-          players={players}
-          setPlayers={setPlayers}
-        />
-      </div>
-    );
-  }
+
 };
