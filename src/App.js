@@ -33,8 +33,8 @@ function App() {
       <AppContext.Provider value={{ shouldJoin, setShouldJoin }}>
         <Router>
           <Routes>
-            <Route path="/" element={<Auth/>} />
-            <Route path="/room/:id" element={<Room showVoting={showVoting} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby} />} />
+            <Route path="/" element={<Auth setShouldJoin={setShouldJoin}/>} />
+            <Route path="/room/:id" element={<Room showVoting={showVoting}  shouldJoin={shouldJoin} setShouldJoin={shouldJoin} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby} />} />
           </Routes>
         </Router>
       </AppContext.Provider>
@@ -42,28 +42,48 @@ function App() {
   );
 }
 
-function Room({ showVoting, setShowVoting, inLobby, setInLobby }) {
+function Room({ showVoting, setShowVoting, inLobby, setInLobby, shouldJoin, setShouldJoin, }) {
   const url = window.location.pathname;
 
   const parts = url.split("/");
   const roomID = parts[2];
-  //das gibt Lobby zu game
-  isCreator={isCreator}
-  lives={lives}
+  const [isCreator, setIsCreator] = useState(false);
+  const [lives, setLives] = useState(3);
+  const [rounds, setRounds] = useState(4);
+
   rounds={rounds}
   questionTime={questionTime}
   votingTime={votingTime}
-  db={db}
   playerNumber={playerNumber}
   roomID={roomID}
   setSlayerNumber={setPlayerNumber}
   players={players}
   setPlayers={setPlayers}
+  shouldJoin={shouldJoin}
+  setShouldJoin={setShouldJoin}
+  language={language}
+   setLanguage={setLanguage}
 
   return (
     <div>
       {inLobby ? (
-        <Lobby setInLobby={setInLobby} /> // Übergabe der Prop zur Steuerung des Übergangs zum Spiel
+        <Lobby setInLobby={setInLobby}
+        isCreator={isCreator}
+        lives={lives}
+        setLives={setLives}
+        rounds={rounds}
+        questionTime={questionTime}
+        votingTime={votingTime}
+        playerNumber={playerNumber}
+        roomID={roomID}
+        setSlayerNumber={setPlayerNumber}
+        players={players}
+        setPlayers={setPlayers}
+        shouldJoin={shouldJoin}
+        setShouldJoin={setShouldJoin}
+        language={language}
+         setLanguage={setLanguage}
+        /> // Übergabe der Prop zur Steuerung des Übergangs zum Spiel
       ) : showVoting ? (
         <Voting
           votingTime={votingTime}
