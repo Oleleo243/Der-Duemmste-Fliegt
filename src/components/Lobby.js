@@ -24,15 +24,10 @@ import { createAvatar } from "@dicebear/core";
 import { avataaars, lorelei } from "@dicebear/collection";
 import { useMemo } from "react";
 
-export const Lobby = (roomID, setInLobby, isCreator, lives, rounds, questionTime,votingTime,playerNumber,setPlayerNumber, players ,setPlayers, shouldJoin, setShouldJoin, language, language, setLanguage, setLives
+export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, setIsCreator, questionTime,votingTime,playerNumber,setPlayerNumber, players ,setPlayers, shouldJoin, setShouldJoin, language, setLanguage, setLives, setQuestionTime, setVotingTime
 ) => {
-  const [questionTime, setQuestionTime] = useState(30);
-  const [votingTime, setVotingTime] = useState(20);
 
-  const [language, setLanguage] = useState("german");
-  const [playerNumber, setPlayerNumber] = useState(0);
-  const { shouldJoin, setShouldJoin } = useContext(AppContext);
-  const [players, setPlayers] = useState([]);
+  //const { shouldJoin, setShouldJoin } = useContext(AppContext);
   const [isAuth, setIsAuth] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [count, setCount] = useState(6.0);

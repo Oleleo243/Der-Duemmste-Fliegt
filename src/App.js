@@ -3,6 +3,9 @@ import { signOut } from "firebase/auth";
 import { useParams } from "react-router-dom";
 
 import { Lobby } from "./components/Lobby";
+import { Voting } from "./components/Voting";
+import { Game } from "./components/Game";
+
 import { Auth } from "./components/Auth.js";
 import Cookies from "universal-cookie";
 import { db, auth, uid } from "./firebase-config.js";
@@ -34,7 +37,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Auth setShouldJoin={setShouldJoin}/>} />
-            <Route path="/room/:id" element={<Room showVoting={showVoting}  shouldJoin={shouldJoin} setShouldJoin={shouldJoin} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby} />} />
+            <Route path="/room/:id" element={<Room showVoting={showVoting}  shouldJoin={shouldJoin} setShouldJoin={setShouldJoin} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby}/> } />
           </Routes>
         </Router>
       </AppContext.Provider>
@@ -50,30 +53,28 @@ function Room({ showVoting, setShowVoting, inLobby, setInLobby, shouldJoin, setS
   const [isCreator, setIsCreator] = useState(false);
   const [lives, setLives] = useState(3);
   const [rounds, setRounds] = useState(4);
+  const [questionTime, setQuestionTime] = useState(30);
+  const [votingTime, setVotingTime] = useState(20);
+  const [playerNumber, setPlayerNumber] = useState(0);
+  const [players, setPlayers] = useState([]);
+  const [language, setLanguage] = useState("german");
+  const [votingNumber, setVotingNumber] = useState(1);
 
-  rounds={rounds}
-  questionTime={questionTime}
-  votingTime={votingTime}
-  playerNumber={playerNumber}
-  roomID={roomID}
-  setSlayerNumber={setPlayerNumber}
-  players={players}
-  setPlayers={setPlayers}
-  shouldJoin={shouldJoin}
-  setShouldJoin={setShouldJoin}
-  language={language}
-   setLanguage={setLanguage}
 
   return (
     <div>
       {inLobby ? (
         <Lobby setInLobby={setInLobby}
         isCreator={isCreator}
+        setIsCreator={setIsCreator}
         lives={lives}
         setLives={setLives}
         rounds={rounds}
+        setRounds={setRounds}
         questionTime={questionTime}
+        setQuestionTime={setQuestionTime}
         votingTime={votingTime}
+        setVotingTime={setVotingTime}
         playerNumber={playerNumber}
         roomID={roomID}
         setSlayerNumber={setPlayerNumber}
@@ -86,33 +87,28 @@ function Room({ showVoting, setShowVoting, inLobby, setInLobby, shouldJoin, setS
         /> // Übergabe der Prop zur Steuerung des Übergangs zum Spiel
       ) : showVoting ? (
         <Voting
-          votingTime={votingTime}
-          isCreator={isCreator}
-          players={players}
-          votingNumber={votingNumber}
-          roomID={roomID}
-          setPlayers={setPlayers}
+        votingTime={votingTime} 
+        isCreator={isCreator}
+        players={players}
+        votingNumber={votingNumber} 
+        roomID={roomID} 
+        setPlayers={setPlayers}
         />
       ) : (
         <Game
-          players={players}
-          avatars={avatars}
-          uid={'unique-id'}
-          playerCounter={playerCounter}
-          count={count}
-          round={round}
-          rounds={rounds}
-          playerName={playerName}
-          randomQuestion={randomQuestion}
-          myTurn={myTurn}
-          playerAnswerInput={playerAnswerInput}
-          setPlayerAnswerInput={setPlayerAnswerInput}
-          sendAnswer={sendAnswer}
-          showLastAnswer={showLastAnswer}
-          lastAnswer={lastAnswer}
-          correctAnswer={correctAnswer}
-          inputRef={inputRef}
-          setShowVoting={setShowVoting} // Prop, um das Voting zu starten
+        setShowVoting={setShowVoting}
+        isCreator={isCreator}
+        lives={lives}
+        rounds={rounds}
+        questionTime={questionTime}
+        votingTime={votingTime}
+        playerNumber={questionTime}
+        players={players}
+        db={db}
+        roomID={roomID}
+        setPlayers={setPlayers}
+        votingNumber={votingNumber}
+        setVotingNumber={setVotingNumber}
         />
       )}
     </div>

@@ -38,17 +38,18 @@ export const Game = ({
   questionTime,
   votingTime,
   playerNumber,
-  setPlayerNumber,
   players,
   db,
   roomID,
   setPlayers,
+  setShowVoting,
+  votingNumber,
+  setVotingNumber,
 }) => {
   const [count, setCount] = useState(questionTime);
   const [round, setRound] = useState(1);
   const [answerInDB, setAnswerInDB] = useState(0);
   const [voting, setVoting] = useState(false);
-  const [votingNumber, setVotingNumber] = useState(1);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(1);
   const [randomQuestion, setRandomQuestion] = useState("");
   const [tmp, setTmp] = useState(1);
@@ -230,7 +231,7 @@ export const Game = ({
         if (playerNumber <= playerCounter + 1) {
           setPlayerCounter(0);
           if (round + 1 > rounds) {
-            setVoting(true);
+            setShowVoting(true);
             return;
           } else {
             console.log("RUNDE ERHÖHT");
@@ -470,10 +471,12 @@ export const Game = ({
       </div>
     );
   }
+  /*
   if (voting) {
     return (
         <Voting votingTime={votingTime} isCreator={isCreator} players={players} votingNumber={votingNumber} roomID={roomID} setPlayers={setPlayers}
 />
     );
   }
+    */
 };
