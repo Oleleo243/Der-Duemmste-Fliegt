@@ -33,11 +33,11 @@ function App() {
 
   return (
     <div className="App">
-      <AppContext.Provider value={{ shouldJoin, setShouldJoin }}>
+      <AppContext.Provider >
         <Router>
           <Routes>
-            <Route path="/" element={<Auth setShouldJoin={setShouldJoin}/>} />
-            <Route path="/room/:id" element={<Room showVoting={showVoting}  shouldJoin={shouldJoin} setShouldJoin={setShouldJoin} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby}/> } />
+            <Route path="/" element={<Auth shouldJoin={shouldJoin} setShouldJoin={setShouldJoin} />} />
+          <Route path="/room/:id" element={<Room showVoting={showVoting}  shouldJoin={shouldJoin} setShouldJoin={setShouldJoin} setShowVoting={setShowVoting} inLobby={inLobby} setInLobby={setInLobby}/> } />
           </Routes>
         </Router>
       </AppContext.Provider>

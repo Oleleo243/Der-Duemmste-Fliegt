@@ -100,13 +100,14 @@ export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, se
   // erstelle avatare
   // https://www.dicebear.com/styles/avataaars/
   const avatars = useMemo(() => {
-    return players.map((player) =>
+    return players ? players.map((player) =>
       createAvatar(avataaars, {
         size: 50,
         seed: player.playerName,
       }).toDataUriSync()
-    );
+    ) : [];
   }, [players]);
+
 
   useEffect(() => {
     if(playerNumber > 1){

@@ -26,11 +26,10 @@ import { createAvatar } from "@dicebear/core";
 import { avataaars, lorelei } from "@dicebear/collection";
 import { getRandomBoolean } from "../utilities/helperFunctions.js";
 
-export const Auth = (setShouldJoin) => {
+export const Auth = ({ shouldJoin, setShouldJoin }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [errorMessage, setIsErrorMessage] = useState(false);
-
-  const [roomID, setRoomID] = useState(null);
+  let localRoomID;
   const roomInputRef = useRef(null);
   let navigate = useNavigate();
 
@@ -66,6 +65,7 @@ export const Auth = (setShouldJoin) => {
     try {
       // console.log("es amcht keinen sinn")
       const newRoomRef = await push(ref(db, "rooms/"));
+      localRoomID = newRoomRef.key;
       const newRoomData = {
         players: {
           [uid]: {
@@ -91,7 +91,6 @@ export const Auth = (setShouldJoin) => {
       };
       // console.log("es muss doch klappen")
       await set(newRoomRef, newRoomData);
-      setRoomID(newRoomRef.key);
       setShouldJoin(false);
 
       return newRoomRef.key;
@@ -102,8 +101,8 @@ export const Auth = (setShouldJoin) => {
   }
 
   useEffect(() => {
-    if(shouldJoin){
-      navigate(`/room/${newRoomRef.key}`);
+    if(!shouldJoin){
+      navigate(`/room/${localRoomID}`);
     }
   }, [shouldJoin]);
 
