@@ -65,7 +65,6 @@ export const Auth = ({ shouldJoin, setShouldJoin }) => {
     try {
       // console.log("es amcht keinen sinn")
       const newRoomRef = await push(ref(db, "rooms/"));
-      localRoomID = newRoomRef.key;
       const newRoomData = {
         players: {
           [uid]: {
@@ -89,9 +88,9 @@ export const Auth = ({ shouldJoin, setShouldJoin }) => {
           time: 30,
         },
       };
-      // console.log("es muss doch klappen")
       await set(newRoomRef, newRoomData);
       setShouldJoin(false);
+      navigate(`/room/${newRoomRef.key}`);
 
       return newRoomRef.key;
     } catch (error) {
@@ -99,12 +98,15 @@ export const Auth = ({ shouldJoin, setShouldJoin }) => {
       throw new Error("Failed to create room");
     }
   }
-
+/*
   useEffect(() => {
     if(!shouldJoin){
+      console.log("localRoomID2: " + localRoomID);
+
       navigate(`/room/${localRoomID}`);
     }
   }, [shouldJoin]);
+  */
 
  // if (!isAuth || roomID === null) {
     return (

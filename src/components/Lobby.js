@@ -24,8 +24,8 @@ import { createAvatar } from "@dicebear/core";
 import { avataaars, lorelei } from "@dicebear/collection";
 import { useMemo } from "react";
 
-export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, setIsCreator, questionTime,votingTime,playerNumber,setPlayerNumber, players ,setPlayers, shouldJoin, setShouldJoin, language, setLanguage, setLives, setQuestionTime, setVotingTime
-) => {
+export const Lobby = ({roomID, setInLobby, isCreator, lives, rounds,setRounds, setIsCreator, questionTime,votingTime,playerNumber,setPlayerNumber, players ,setPlayers, shouldJoin, setShouldJoin, language, setLanguage, setLives, setQuestionTime, setVotingTime
+}) => {
 
   //const { shouldJoin, setShouldJoin } = useContext(AppContext);
   const [isAuth, setIsAuth] = useState(false);
@@ -52,6 +52,7 @@ export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, se
             return { playerID: playerID, ...playerData, votedBy: votedBy };
           });
           setPlayers(playersArray);
+          console.log("palyerNumber in lobby: " + playersArray.length)
           setPlayerNumber(playersArray.length);
 
         }
@@ -153,7 +154,7 @@ export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, se
   if (shouldJoin) {
     return (
       <div>
-        <AuthJoin roomID={roomID} setIsAuth={setIsAuth} />
+        <AuthJoin roomID={roomID} setIsAuth={setIsAuth} shouldJoin={shouldJoin} setShouldJoin={setShouldJoin} />
       </div>
     );
   }
@@ -275,7 +276,7 @@ export const Lobby = (roomID, setInLobby, isCreator, lives, rounds,setRounds, se
         )}
         <div className="Lobby-player-list">
 
-          {players.map((player, index) => (
+        {players && players.map((player, index) => (
             <div className="Lobby-player"key={player.playerName}>
               <img src={avatars[index]} alt="Avatar" />
               {player.playerID === uid ? (

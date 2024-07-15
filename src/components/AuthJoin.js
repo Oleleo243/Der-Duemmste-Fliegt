@@ -19,7 +19,7 @@ import {AppContext} from "../App"
 export const AuthJoin = (props) => {
   const maxPlayerNumber = 12;
 
-  const {shouldJoin, setShouldJoin} = useContext(AppContext);
+  //const {shouldJoin, setShouldJoin} = useContext(AppContext);
   const schema = yup.object().shape({
     name: yup.string().required("Please write a Nickname"),
   });
@@ -74,7 +74,7 @@ export const AuthJoin = (props) => {
     playerNumber: newPlayerNumber,
     });
     // sage der ui das der Prozess fertig ist
-    setShouldJoin(false);
+    props.setShouldJoin(false);
   }
 
   

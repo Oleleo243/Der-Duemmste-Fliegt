@@ -77,7 +77,7 @@ function Room({ showVoting, setShowVoting, inLobby, setInLobby, shouldJoin, setS
         setVotingTime={setVotingTime}
         playerNumber={playerNumber}
         roomID={roomID}
-        setSlayerNumber={setPlayerNumber}
+        setPlayerNumber={setPlayerNumber}
         players={players}
         setPlayers={setPlayers}
         shouldJoin={shouldJoin}
@@ -102,7 +102,7 @@ function Room({ showVoting, setShowVoting, inLobby, setInLobby, shouldJoin, setS
         rounds={rounds}
         questionTime={questionTime}
         votingTime={votingTime}
-        playerNumber={questionTime}
+        playerNumber={playerNumber}
         players={players}
         db={db}
         roomID={roomID}

@@ -104,7 +104,7 @@ export const Game = ({
   };
 
   useEffect(() => {
-    console.log("Seite Wird gerendert");
+    console.log("player Number: " + playerNumber);
     const timeOffListener = onValue(
       ref(db, ".info/serverTimeOffset"),
       (snapshot) => {
