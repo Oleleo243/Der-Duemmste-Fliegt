@@ -41,7 +41,7 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
   const [intervalID, setIntervalID] = useState(0);
   const [count, setCount] = useState(votingTime);
   const [votingPhase, setVotingPhase] = useState("Voting Ends In: ");
-  let votingProcessFinishied = false;
+  const [votingProcessFinished, setVotingProcessFinished] = useState(false);
 
   let votingTimeValue = votingTime;
 
@@ -162,19 +162,21 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
 
       // handle vote results
       setHasVoted(true);
-      votingProcessFinishied = true;
+      setVotingProcessFinished(true); 
 
-      if(!isCreator){
-        if (topVotedPlayers.length === 1) {
-          await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[0].playerID}/lives`),  topVotedPlayers[0].lives-1);
-
-        } else if (topVotedPlayers.length > 1) {
-          const randomIndex = Math.floor(Math.random() * topVotedPlayers.length);
-          await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[randomIndex].playerID}/lives`), topVotedPlayers[randomIndex].lives-1);
-
-        } else {
-          console.log('No players found.');
-        } 
+      //hier
+      if (!isCreator) {
+        setTimeout(async () => {
+          if (topVotedPlayers.length === 1) {
+            await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[0].playerID}/lives`), topVotedPlayers[0].lives - 1);
+          } else if (topVotedPlayers.length > 1) {
+            const randomIndex = Math.floor(Math.random() * topVotedPlayers.length);
+            console.log("ziehe spieler " + randomIndex + " leben ab");
+            await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[randomIndex].playerID}/lives`), topVotedPlayers[randomIndex].lives - 1);
+          } else {
+            console.log('No players found.');
+          }
+        }, 1000); // 1000 milliseconds = 1 second
       }
 
 
@@ -184,11 +186,11 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       setVotingPhase("Proceeding In: ")
       await timer(3, setCount, startedAt, serverTimeOffset);
     }
-    console.log("votingProcessFinishied: " + votingProcessFinishied)
-    if (startedAt && !votingProcessFinishied) {
+    if (startedAt && !votingProcessFinished) {
+      console.log("player calls voting process")
       votingProcess();
     }
-    else if (startedAt && votingProcessFinishied) {
+    else if (startedAt && votingProcessFinished) {
       endVoting();
     }
   }, [startedAt]);
