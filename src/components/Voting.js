@@ -166,7 +166,7 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
 
       //hier
       if (!isCreator) {
-        setTimeout(async () => {
+          await wait(3000) 
           if (topVotedPlayers.length === 1) {
             await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[0].playerID}/lives`), topVotedPlayers[0].lives - 1);
           } else if (topVotedPlayers.length > 1) {
@@ -176,7 +176,6 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
           } else {
             console.log('No players found.');
           }
-        }, 1000); // 1000 milliseconds = 1 second
       }
 
 
