@@ -37,7 +37,9 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
 }) => {
   const [votingData, setVotingData] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
-  const [startedAt, setStartedAt] = useState(null);
+  const [startedVotingAt, setStartedVotingAt] = useState(null);
+  const [startedVotingOutroAt, setStartedVotingOutroAt] = useState(null);
+
   const [intervalID, setIntervalID] = useState(0);
   const [count, setCount] = useState(votingTime);
   const [votingPhase, setVotingPhase] = useState("Voting Ends In: ");
@@ -95,13 +97,22 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       }
     );
 
-    const startAtRef = ref(db, "rooms/" + roomID + "/status/startAt"); // Pfad zum ausgewählten Feld in der Realtime Database
-    const startAtListener = onValue(startAtRef, (snapshot) => {
+    const startedVotingAtRef = ref(db, "rooms/" + roomID + "/status/startedVotingAt"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const startedVotingAListener = onValue(startedVotingAtRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setStartedAt(data);
+        setStartedVotingAt(data);
       }
     });
+    
+        const startedVotingOutroAtRef = ref(db, "rooms/" + roomID + "/status/startedVotingOutroAt"); // Pfad zum ausgewählten Feld in der Realtime Database
+    const startedVotingOutro = onValue(startedVotingOutroAtRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setStartedVotingOutroAt(data);
+      }
+    });
+
 
 
     async function fetchVotingData() {
@@ -137,7 +148,7 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
           playersArray.forEach((player) => {
             const previousPlayer = getPlayerById(player.playerID, players);
             if (previousPlayer && previousPlayer.lives !== undefined && previousPlayer.lives !== player.lives) {
-              handlePlayerLifeDecrease();
+              // handlePlayerLifeDecrease();
             }
           });
         //  console.log("players Array: " + playersArray)
@@ -147,14 +158,14 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
       
       
     if (!isCreator) {
-      set(ref(db, "rooms/" + roomID + "/status/startAt"), serverTimestamp());
+      set(ref(db, "rooms/" + roomID + "/status/startedVotingAt"), serverTimestamp());
     }
   }, []);
 
   useEffect(() => {
     const votingProcess = async () => {
 
-      await timer(votingTime, setCount, startedAt, serverTimeOffset);
+      await timer(votingTime, setCount, startedVotingAt, serverTimeOffset);
      // const updatedVotingTime = parseInt(votingTime) + 6;
 
       // count votes
@@ -162,11 +173,9 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
 
       // handle vote results
       setHasVoted(true);
-      setVotingProcessFinished(true); 
 
       //hier
       if (!isCreator) {
-          await wait(3000) 
           if (topVotedPlayers.length === 1) {
             await set(ref(db, `rooms/${roomID}/players/${topVotedPlayers[0].playerID}/lives`), topVotedPlayers[0].lives - 1);
           } else if (topVotedPlayers.length > 1) {
@@ -176,24 +185,30 @@ export const Voting = ({ votingTime, players, votingNumber, roomID,   setPlayers
           } else {
             console.log('No players found.');
           }
+          set(ref(db, "rooms/" + roomID + "/status/startedVotingOutroAt"), serverTimestamp());
+
       }
 
 
     }
 
-    const endVoting = async () => {
-      setVotingPhase("Proceeding In: ")
-      await timer(3, setCount, startedAt, serverTimeOffset);
-    }
-    if (startedAt && !votingProcessFinished) {
-      console.log("player calls voting process")
+  
+    if (startedVotingAt) {
       votingProcess();
     }
-    else if (startedAt && votingProcessFinished) {
+   
+  }, [startedVotingAt]);
+
+  useEffect(() => {
+    const endVoting = async () => {
+      setVotingPhase("Proceeding In: ")
+      await timer(3, setCount, startedVotingOutroAt, serverTimeOffset);
+    }
+
+    if (startedVotingOutroAt) {
       endVoting();
     }
-  }, [startedAt]);
-
+  }, [startedVotingOutroAt]);
   const  voteForPlayer = async (playerID) => {
     
     setHasVoted(true);
